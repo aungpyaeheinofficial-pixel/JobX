@@ -1010,10 +1010,40 @@ const JobsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout, ap
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-sm mb-4">
                   <span className="font-medium text-gray-900">{job.salary}</span>
                   <span className="text-gray-500">{job.posted}</span>
                 </div>
+
+                {/* Quick Apply Button - Only for Job Seekers */}
+                {canApply && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    {application ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleApplyClick();
+                        }}
+                        className="w-full py-2.5 px-4 bg-green-50 border border-green-200 text-green-700 rounded-full hover:bg-green-100 transition-all text-sm font-medium flex items-center justify-center gap-2"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        Applied
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedJob(job);
+                          handleApplyClick();
+                        }}
+                        className="w-full py-2.5 px-4 bg-black text-white rounded-full hover:bg-gray-800 transition-all text-sm font-medium flex items-center justify-center gap-2 group"
+                      >
+                        Apply Now
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </button>
+                    )}
+                  </div>
+                )}
               </button>
               );
             })}
@@ -1049,9 +1079,51 @@ const JobsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout, ap
                 <h1 className="text-6xl font-bold tracking-tight mb-6 leading-tight">
                   {selectedJob.title}
                 </h1>
-                <p className="text-3xl text-gray-600 mb-8">{selectedJob.company}</p>
+                <p className="text-3xl text-gray-600 mb-6">{selectedJob.company}</p>
 
-                <div className="flex flex-col gap-4 text-gray-600 mb-12">
+                {/* Salary - Prominent Display */}
+                <div className="mb-8">
+                  <span className="text-2xl font-semibold text-gray-900">{selectedJob.salary}</span>
+                </div>
+
+                {/* Primary CTA - Apply Now (LinkedIn/Indeed Style) */}
+                {canApply && (
+                  <div className="mb-12">
+                    {getApplicationForJob(selectedJob.id) ? (
+                      <PremiumButton
+                        variant="secondary"
+                        onClick={handleApplyClick}
+                        className="text-xl px-12 py-5 bg-green-50 border-2 border-green-600 text-green-700 hover:bg-green-100"
+                      >
+                        <CheckCircle className="w-6 h-6" />
+                        Applied - View Status
+                      </PremiumButton>
+                    ) : (
+                      <PremiumButton
+                        variant="primary"
+                        onClick={handleApplyClick}
+                        className="text-xl px-12 py-5"
+                      >
+                        <ArrowRight className="w-6 h-6" />
+                        Apply Now
+                      </PremiumButton>
+                    )}
+
+                    {/* Save Job - Secondary Action */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSaveJob(selectedJob.id);
+                      }}
+                      className="ml-4 px-8 py-5 border-2 border-gray-200 rounded-full hover:border-gray-300 hover:bg-gray-50 transition-all text-lg font-medium inline-flex items-center gap-2"
+                    >
+                      <Bookmark className={`w-5 h-5 ${savedJobs.includes(selectedJob.id) ? 'fill-black' : ''}`} />
+                      {savedJobs.includes(selectedJob.id) ? 'Saved' : 'Save Job'}
+                    </button>
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-4 text-gray-600 mb-12 pt-8 border-t border-gray-200">
                   <div className="flex items-center gap-3">
                     <MapPin className="w-5 h-5" />
                     <span className="text-xl">{selectedJob.location}</span>
@@ -1066,8 +1138,8 @@ const JobsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout, ap
                   </div>
                 </div>
 
-                {/* CTA Buttons - Role Aware */}
-                <div className="flex gap-4">
+                {/* Old CTA section removed - now above job details */}
+                <div className="hidden">
                   {canApply ? (
                     // Job Seeker View: Apply Button
                     getApplicationForJob(selectedJob.id) ? (
