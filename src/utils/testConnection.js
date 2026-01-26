@@ -50,8 +50,4 @@ export const testAuth = async () => {
   }
 };
 
-// Make available globally for browser console
-if (typeof window !== 'undefined') {
-  window.testConnection = testConnection;
-  window.testAuth = testAuth;
-}
+// Functions are exported and will be attached to window in main.jsx
