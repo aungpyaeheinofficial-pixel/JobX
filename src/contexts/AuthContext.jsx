@@ -22,32 +22,41 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
       } catch (error) {
         // Token invalid or expired
+        console.error('Auth check failed:', error.message);
         api.removeToken();
         setUser(null);
         setIsAuthenticated(false);
       }
+    } else {
+      console.log('No token found, user not authenticated');
     }
     setLoading(false);
   };
 
   const login = async (email, password) => {
     try {
+      console.log('🔐 Attempting login...');
       const response = await api.auth.login(email, password);
+      console.log('✅ Login successful:', response.user?.email);
       setUser(response.user);
       setIsAuthenticated(true);
       return response;
     } catch (error) {
+      console.error('❌ Login failed:', error.message);
       throw error;
     }
   };
 
   const register = async (userData) => {
     try {
+      console.log('📝 Attempting registration...');
       const response = await api.auth.register(userData);
+      console.log('✅ Registration successful:', response.user?.email);
       setUser(response.user);
       setIsAuthenticated(true);
       return response;
     } catch (error) {
+      console.error('❌ Registration failed:', error.message);
       throw error;
     }
   };

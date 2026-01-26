@@ -3,6 +3,13 @@
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9999/api';
 
+// Debug: Log API URL on load (only in development)
+if (import.meta.env.DEV) {
+  console.log('🔗 API URL:', API_URL);
+  console.log('🔗 Environment:', import.meta.env.MODE);
+  console.log('🔗 VITE_API_URL from env:', import.meta.env.VITE_API_URL);
+}
+
 // Helper function to get auth token
 const getToken = () => {
   return localStorage.getItem('authToken');
@@ -31,7 +38,18 @@ const apiRequest = async (endpoint, options = {}) => {
   }
 
   try {
-    const response = await fetch(`${API_URL}${endpoint}`, {
+    const fullUrl = `${API_URL}${endpoint}`;
+    
+    // Debug logging in development
+    if (import.meta.env.DEV) {
+      console.log('📡 API Request:', {
+        method: options.method || 'GET',
+        url: fullUrl,
+        hasToken: !!token
+      });
+    }
+
+    const response = await fetch(fullUrl, {
       ...options,
       headers,
     });
@@ -50,16 +68,39 @@ const apiRequest = async (endpoint, options = {}) => {
       const error = new Error(errorMessage);
       error.status = response.status;
       error.data = data;
+      
+      // Enhanced error logging
+      console.error('❌ API Error Response:', {
+        status: response.status,
+        endpoint,
+        error: errorMessage,
+        url: fullUrl
+      });
+      
       throw error;
+    }
+
+    // Debug logging in development
+    if (import.meta.env.DEV) {
+      console.log('✅ API Success:', endpoint);
     }
 
     return data;
   } catch (error) {
     if (error instanceof Error) {
-      console.error('API Error:', error.message, endpoint);
+      // Check if it's a network error
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        console.error('🌐 Network Error - Check:', {
+          apiUrl: API_URL,
+          endpoint,
+          message: 'Cannot connect to backend. Is the server running?'
+        });
+        throw new Error(`Cannot connect to server. Please check if the backend is running at ${API_URL}`);
+      }
+      console.error('❌ API Error:', error.message, endpoint);
       throw error;
     }
-    console.error('API Error:', error);
+    console.error('❌ API Error:', error);
     throw new Error('Network error or invalid response');
   }
 };
