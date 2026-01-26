@@ -70,8 +70,28 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Static files for uploads (if needed)
 app.use('/uploads', express.static(join(__dirname, 'uploads')));
 
-// Health Check
+// Health Check (root level)
 app.get('/health', async (req, res) => {
+  try {
+    // Test database connection
+    await pool.query('SELECT 1');
+    res.json({ 
+      status: 'healthy', 
+      timestamp: new Date().toISOString(),
+      database: 'connected'
+    });
+  } catch (error) {
+    res.status(503).json({ 
+      status: 'unhealthy', 
+      timestamp: new Date().toISOString(),
+      database: 'disconnected',
+      error: error.message
+    });
+  }
+});
+
+// Health Check (under /api for Nginx proxy)
+app.get('/api/health', async (req, res) => {
   try {
     // Test database connection
     await pool.query('SELECT 1');
