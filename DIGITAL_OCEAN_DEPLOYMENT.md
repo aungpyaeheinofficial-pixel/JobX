@@ -195,7 +195,7 @@ Add the following (replace with your actual values):
 NODE_ENV=production
 FRONTEND_PORT=5560
 BACKEND_PORT=9999
-FRONTEND_URL=http://YOUR_DROPLET_IP
+FRONTEND_URL=http://YOUR_DROPLET_IP:5560
 BACKEND_URL=http://127.0.0.1:9999
 
 DB_HOST=localhost
@@ -211,7 +211,7 @@ STRIPE_SECRET_KEY=sk_live_YOUR_STRIPE_SECRET_KEY
 STRIPE_PUBLISHABLE_KEY=pk_live_YOUR_STRIPE_PUBLISHABLE_KEY
 STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET
 
-ALLOWED_ORIGINS=http://YOUR_DROPLET_IP,http://YOUR_DROPLET_IP:5560
+ALLOWED_ORIGINS=http://YOUR_DROPLET_IP:5560
 
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
@@ -307,7 +307,7 @@ rm -rf temp
 
 ```bash
 # Create .env.production file in project root
-echo "VITE_API_URL=http://YOUR_DROPLET_IP/api" > .env.production
+echo "VITE_API_URL=http://YOUR_DROPLET_IP:5560/api" > .env.production
 ```
 
 **⚠️ Replace `YOUR_DROPLET_IP` with your actual droplet IP address**
@@ -327,9 +327,10 @@ sudo nano /etc/nginx/sites-available/jobx
 Add the following configuration:
 
 ```nginx
-# Combined Frontend and Backend Server (Port 80)
+# Combined Frontend and Backend Server (Port 5560)
+# Note: Port 80 is used by another application
 server {
-    listen 80 default_server;
+    listen 5560;
     server_name _;
 
     # Backend API - must come before frontend location
@@ -365,9 +366,9 @@ server {
 ```
 
 **Note**: 
-- Frontend is served on port 80 (HTTP) - no port 5560 needed in production
-- Backend API is accessible at `http://YOUR_DROPLET_IP/api`
-- Frontend port 5560 is only for local development
+- Frontend is served on port 5560 (HTTP)
+- Backend API is accessible at `http://YOUR_DROPLET_IP:5560/api`
+- Port 80 is used by another application
 - No domain required - works with IP address only!
 
 ### 9.2 Enable Site
@@ -376,8 +377,9 @@ server {
 # Create symbolic link
 sudo ln -s /etc/nginx/sites-available/jobx /etc/nginx/sites-enabled/
 
-# Remove default site (optional)
-sudo rm /etc/nginx/sites-enabled/default
+# Remove default site (optional - only if you want)
+# sudo rm /etc/nginx/sites-enabled/default
+# Note: Keep default if port 80 is used by another app
 
 # Test Nginx configuration
 sudo nginx -t
@@ -394,10 +396,10 @@ sudo systemctl restart nginx
 # Allow SSH (important - do this first!)
 sudo ufw allow 22/tcp
 
-# Allow HTTP
-sudo ufw allow 80/tcp
+# Allow JobX Frontend (Port 5560)
+sudo ufw allow 5560/tcp
 
-# Allow HTTPS
+# Allow HTTPS (if you get a domain later)
 sudo ufw allow 443/tcp
 
 # Enable firewall
@@ -407,7 +409,9 @@ sudo ufw enable
 sudo ufw status
 ```
 
-**⚠️ Important**: Backend port 9999 is NOT exposed - it's only accessible via Nginx reverse proxy on localhost.
+**⚠️ Important**: 
+- Backend port 9999 is NOT exposed - it's only accessible via Nginx reverse proxy on localhost
+- Port 80 is used by another application, so JobX uses port 5560
 
 ---
 
@@ -443,7 +447,7 @@ sudo certbot renew --dry-run
 
 ```bash
 # Create .env.production file (replace YOUR_DROPLET_IP with your actual IP)
-echo "VITE_API_URL=http://YOUR_DROPLET_IP/api" > .env.production
+echo "VITE_API_URL=http://YOUR_DROPLET_IP:5560/api" > .env.production
 
 # Rebuild
 npm run build
@@ -467,8 +471,8 @@ nano .env
 
 Update (replace YOUR_DROPLET_IP with your actual IP):
 ```env
-FRONTEND_URL=http://YOUR_DROPLET_IP
-ALLOWED_ORIGINS=http://YOUR_DROPLET_IP,http://YOUR_DROPLET_IP:5560
+FRONTEND_URL=http://YOUR_DROPLET_IP:5560
+ALLOWED_ORIGINS=http://YOUR_DROPLET_IP:5560
 ```
 
 **⚠️ Replace `YOUR_DROPLET_IP` with your actual droplet IP address**
@@ -491,15 +495,15 @@ sudo systemctl restart nginx
 
 ### 14.1 Test Frontend
 
-Open in browser: `http://YOUR_DROPLET_IP`
+Open in browser: `http://YOUR_DROPLET_IP:5560`
 
 **⚠️ Replace `YOUR_DROPLET_IP` with your actual droplet IP address**
 
 ### 14.2 Test Backend API
 
 ```bash
-# Health check via API path
-curl http://YOUR_DROPLET_IP/api/health
+# Health check via API path (from external)
+curl http://YOUR_DROPLET_IP:5560/api/health
 
 # Or directly (from server only)
 curl http://127.0.0.1:9999/health
@@ -509,7 +513,7 @@ curl http://127.0.0.1:9999/health
 
 ### 14.3 Test from Browser
 
-Open: `http://YOUR_DROPLET_IP/api/health`
+Open: `http://YOUR_DROPLET_IP:5560/api/health`
 
 **⚠️ Replace `YOUR_DROPLET_IP` with your actual droplet IP address**
 
@@ -711,7 +715,7 @@ If you encounter issues:
 1. Check logs: `pm2 logs` and `sudo tail -f /var/log/nginx/error.log`
 2. Verify all services are running: `pm2 status` and `sudo systemctl status nginx postgresql`
 3. Test database connection
-4. Verify IP is accessible: `curl http://YOUR_DROPLET_IP`
+4. Verify IP is accessible: `curl http://YOUR_DROPLET_IP:5560`
 5. Check firewall: `sudo ufw status`
 
 Your JobX platform is now live on Digital Ocean! 🚀
