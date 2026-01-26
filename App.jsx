@@ -91,15 +91,29 @@ const AppContent = () => {
   // Handle employer onboarding completion
   const handleEmployerOnboardingComplete = async (companyData) => {
     try {
+      // Transform camelCase to snake_case for backend
+      const backendData = {
+        company_name: companyData.companyName,
+        company_size: companyData.companySize,
+        industry: companyData.industry,
+        location: companyData.location,
+        website: companyData.website || null,
+        logo_url: companyData.logoPreview || null, // Use logoPreview URL if available
+        description: companyData.description || null,
+        hiring_urgency: companyData.hiringUrgency || null,
+        roles_count: companyData.rolesCount || null
+      };
+      
       // Save company to backend
-      await api.companies.create(companyData);
+      await api.companies.create(backendData);
       // Refresh user data to get company info
       const updatedUser = await api.auth.getCurrentUser();
       updateUser(updatedUser.user);
       setCurrentView('employer');
     } catch (error) {
       console.error('Failed to save company:', error);
-      alert('Failed to save company data. Please try again.');
+      console.error('Error details:', error.message, error.data);
+      alert(`Failed to save company data: ${error.message || 'Please try again.'}`);
     }
   };
 
