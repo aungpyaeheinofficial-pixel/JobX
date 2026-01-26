@@ -352,11 +352,12 @@ server {
 
     # Main location block - handle all frontend routes
     location / {
-        try_files $uri $uri/ /index.html;
-        # Prevent redirect loops
-        if (-f $request_filename) {
-            break;
-        }
+        try_files $uri $uri/ @fallback;
+    }
+
+    # Fallback to index.html for SPA routing
+    location @fallback {
+        rewrite ^.*$ /index.html last;
     }
 
     # Cache static assets
