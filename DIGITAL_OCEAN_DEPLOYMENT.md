@@ -350,14 +350,20 @@ server {
     root /var/www/jobx-frontend;
     index index.html;
 
+    # Main location block - handle all frontend routes
     location / {
         try_files $uri $uri/ /index.html;
+        # Prevent redirect loops
+        if (-f $request_filename) {
+            break;
+        }
     }
 
     # Cache static assets
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
+        access_log off;
     }
 }
 ```
