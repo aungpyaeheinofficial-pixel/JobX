@@ -48,19 +48,24 @@ router.post('/register', [
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
+    // Parse JSONB fields
+    const userResponse = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      location: user.location,
+      role: user.role,
+      industries: typeof user.industries === 'string' ? JSON.parse(user.industries) : user.industries,
+      skills: typeof user.skills === 'string' ? JSON.parse(user.skills) : user.skills,
+      goal: user.goal,
+      subscriptionPlan: user.subscription_plan || 'free',
+      subscriptionStatus: user.subscription_status || 'inactive'
+    };
+
     res.status(201).json({
       message: 'User registered successfully',
       token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        location: user.location,
-        role: user.role,
-        industries: user.industries,
-        skills: user.skills,
-        goal: user.goal
-      }
+      user: userResponse
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -115,21 +120,35 @@ router.post('/login', [
     // Update last login
     await query('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]);
 
+    // Get company data if exists
+    let companyData = null;
+    const companyResult = await query(
+      'SELECT * FROM companies WHERE user_id = $1',
+      [user.id]
+    );
+    if (companyResult.rows.length > 0) {
+      companyData = companyResult.rows[0];
+    }
+
+    // Parse JSONB fields
+    const userResponse = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      location: user.location,
+      role: user.role,
+      industries: typeof user.industries === 'string' ? JSON.parse(user.industries) : user.industries,
+      skills: typeof user.skills === 'string' ? JSON.parse(user.skills) : user.skills,
+      goal: user.goal,
+      subscriptionPlan: user.subscription_plan,
+      subscriptionStatus: user.subscription_status,
+      companyData
+    };
+
     res.json({
       message: 'Login successful',
       token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        location: user.location,
-        role: user.role,
-        industries: user.industries,
-        skills: user.skills,
-        goal: user.goal,
-        subscriptionPlan: user.subscription_plan,
-        subscriptionStatus: user.subscription_status
-      }
+      user: userResponse
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -163,11 +182,25 @@ router.get('/me', authenticate, async (req, res) => {
       companyData = companyResult.rows[0];
     }
 
+    // Parse JSONB fields
+    const userResponse = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      location: user.location,
+      role: user.role,
+      industries: typeof user.industries === 'string' ? JSON.parse(user.industries) : user.industries,
+      skills: typeof user.skills === 'string' ? JSON.parse(user.skills) : user.skills,
+      goal: user.goal,
+      subscriptionPlan: user.subscription_plan,
+      subscriptionStatus: user.subscription_status,
+      createdAt: user.created_at,
+      lastLogin: user.last_login,
+      companyData
+    };
+
     res.json({
-      user: {
-        ...user,
-        companyData
-      }
+      user: userResponse
     });
   } catch (error) {
     console.error('Get user error:', error);

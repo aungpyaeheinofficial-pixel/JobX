@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { ArrowRight, ArrowLeft, Mail, Lock, User, MapPin, Briefcase, Target, CheckCircle2, Eye, EyeOff, Search, Zap, Building2, Calendar, Users } from 'lucide-react';
+import api from './src/services/api.js';
 
 // Apple-style smooth Input Field
 const InputField = ({ icon: Icon, type, placeholder, value, onChange, name, showPassword, onTogglePassword }) => {
@@ -223,10 +224,15 @@ const JobXAuth = ({ onBack, onAuthComplete }) => {
       </div>
 
       <button 
-        onClick={() => {
+        onClick={async () => {
           if (formData.email && formData.password) {
-            if (onAuthComplete) {
-              onAuthComplete(formData);
+            try {
+              const response = await api.auth.login(formData.email, formData.password);
+              if (onAuthComplete) {
+                onAuthComplete(response.user);
+              }
+            } catch (error) {
+              alert(error.message || 'Login failed. Please check your credentials.');
             }
           }
         }}
@@ -438,10 +444,26 @@ const JobXAuth = ({ onBack, onAuthComplete }) => {
       </div>
 
       <button
-        onClick={() => {
-          // Complete onboarding and pass user data to parent
-          if (onAuthComplete) {
-            onAuthComplete(formData);
+        onClick={async () => {
+          if (!formData.goal || !formData.location) return;
+          
+          try {
+            // Register user with backend
+            const response = await api.auth.register({
+              email: formData.email,
+              password: formData.password,
+              name: formData.name,
+              location: formData.location,
+              industries: formData.industries,
+              skills: formData.skills,
+              goal: formData.goal
+            });
+            
+            if (onAuthComplete) {
+              onAuthComplete(response.user);
+            }
+          } catch (error) {
+            alert(error.message || 'Registration failed. Please try again.');
           }
         }}
         disabled={!formData.goal || !formData.location}

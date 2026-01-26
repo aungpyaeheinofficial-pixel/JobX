@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ToastProvider } from './ToastContext.jsx';
+import { AuthProvider, useAuth } from './src/contexts/AuthContext.jsx';
+import api from './src/services/api.js';
 import JobXLanding from './JobXLanding.jsx';
 import JobXAuth from './JobXAuth.jsx';
 import RoleSelection from './RoleSelection.jsx';
@@ -25,7 +27,9 @@ import CompanyProfilePage from './CompanyProfilePage.jsx';
 import TalentPoolPage from './TalentPoolPage.jsx';
 import PremiumShowcase from './PremiumShowcase.jsx';
 
-const App = () => {
+const AppContent = () => {
+  const { user, isAuthenticated, loading, logout, updateUser } = useAuth();
+  
   // Check URL hash for showcase routes
   const getInitialView = () => {
     const hash = window.location.hash;
@@ -35,47 +39,81 @@ const App = () => {
     return 'landing';
   };
 
-  const [currentView, setCurrentView] = useState(getInitialView()); // 'landing', 'auth', 'role-selection', 'dashboard', 'community', 'projects', 'profile', 'showcase', 'feedback', 'applications', 'employer', 'employer-onboarding'
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState(null);
-  const [userRole, setUserRole] = useState(null); // 'seeker', 'hirer', 'both'
-  const [employerSetupComplete, setEmployerSetupComplete] = useState(false);
+  const [currentView, setCurrentView] = useState(getInitialView());
+  const [userRole, setUserRole] = useState(null);
   const [isMessagesOpen, setIsMessagesOpen] = useState(false);
-  const [applications, setApplications] = useState([]); // Job applications tracking
+  const [applications, setApplications] = useState([]);
+  
+  // Load applications from API on mount
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      loadApplications();
+    }
+  }, [isAuthenticated, user]);
+
+  const loadApplications = async () => {
+    try {
+      const response = await api.applications.getMyApplications();
+      setApplications(response.applications || []);
+    } catch (error) {
+      console.error('Failed to load applications:', error);
+    }
+  };
 
   // Handle new job application
-  const handleApply = (applicationData) => {
-    setApplications(prev => [...prev, applicationData]);
+  const handleApply = async (jobId, coverLetter, resumeUrl) => {
+    try {
+      await api.applications.apply(jobId, coverLetter, resumeUrl);
+      // Reload applications
+      await loadApplications();
+    } catch (error) {
+      if (error.message.includes('requiresPremium')) {
+        // Show upgrade modal or redirect to premium page
+        setCurrentView('premium');
+      } else {
+        alert(error.message || 'Failed to submit application');
+      }
+      throw error;
+    }
   };
 
   // Handle withdraw application
-  const handleWithdrawApplication = (jobId) => {
-    setApplications(prev => prev.filter(app => app.jobId !== jobId));
+  const handleWithdrawApplication = async (applicationId) => {
+    try {
+      await api.applications.withdraw(applicationId);
+      // Reload applications
+      await loadApplications();
+    } catch (error) {
+      alert(error.message || 'Failed to withdraw application');
+    }
   };
 
   // Handle employer onboarding completion
-  const handleEmployerOnboardingComplete = (companyData) => {
-    setUserData(prev => ({
-      ...prev,
-      companyData
-    }));
-    setEmployerSetupComplete(true);
-    // After company setup, go to Employer Dashboard (Hiring Mode)
-    setCurrentView('employer');
+  const handleEmployerOnboardingComplete = async (companyData) => {
+    try {
+      // Save company to backend
+      await api.companies.create(companyData);
+      // Refresh user data to get company info
+      const updatedUser = await api.auth.getCurrentUser();
+      updateUser(updatedUser.user);
+      setCurrentView('employer');
+    } catch (error) {
+      console.error('Failed to save company:', error);
+      alert('Failed to save company data. Please try again.');
+    }
   };
 
   // Handle authentication completion
-  const handleAuthComplete = (user) => {
-    setIsAuthenticated(true);
-    setUserData(user);
-    setUserRole('job_seeker'); // Always default to job seeker mode
-    setCurrentView('feed'); // Always land on Home/Feed
+  const handleAuthComplete = (userData) => {
+    updateUser(userData);
+    setUserRole('job_seeker');
+    setCurrentView('feed');
   };
 
   // Handle navigation between pages
   const handleNavigate = (view) => {
     // Check if user is trying to post a job without company setup
-    if (view === 'post-opportunity' && !userData?.companyData) {
+    if (view === 'post-opportunity' && !user?.companyData) {
       // Redirect to employer onboarding (company setup) first
       setCurrentView('employer-onboarding');
       return;
@@ -85,10 +123,10 @@ const App = () => {
   };
 
   // Handle logout
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setUserData(null);
+  const handleLogout = async () => {
+    await logout();
     setUserRole(null);
+    setApplications([]);
     setCurrentView('landing');
   };
 
@@ -113,6 +151,18 @@ const App = () => {
     return <PremiumShowcase onBack={() => setCurrentView('landing')} />;
   }
 
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated && currentView === 'landing') {
     return <JobXLanding onGetStarted={() => setCurrentView('auth')} />;
   }
@@ -132,7 +182,7 @@ const App = () => {
     case 'feed':
       page = (
         <FeedPage
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -144,7 +194,7 @@ const App = () => {
     case 'dashboard':
       page = (
         <Dashboard
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -156,7 +206,7 @@ const App = () => {
     case 'network':
       page = (
         <NetworkPage
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -168,7 +218,7 @@ const App = () => {
     case 'community':
       page = (
         <CommunityFeed
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -180,7 +230,7 @@ const App = () => {
     case 'projects':
       page = (
         <ProjectsPage
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -192,7 +242,7 @@ const App = () => {
     case 'opportunities':
       page = (
         <JobsPage
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -206,7 +256,7 @@ const App = () => {
     case 'applications':
       page = (
         <ApplicationsPage
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -220,7 +270,7 @@ const App = () => {
     case 'employer':
       page = (
         <EmployerDashboard
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -232,7 +282,7 @@ const App = () => {
     case 'employer-onboarding':
       page = (
         <EmployerOnboarding
-          userData={userData}
+          userData={user}
           onComplete={handleEmployerOnboardingComplete}
           onBack={() => setCurrentView('feed')}
         />
@@ -242,7 +292,7 @@ const App = () => {
     case 'post-opportunity':
       page = (
         <PostJob
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -254,7 +304,7 @@ const App = () => {
     case 'payments':
       page = (
         <PaymentsPage
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -266,7 +316,7 @@ const App = () => {
     case 'premium':
       page = (
         <PremiumPage
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -278,15 +328,18 @@ const App = () => {
     case 'company-profile':
       page = (
         <CompanyProfilePage
-          userData={userData}
+          userData={user}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
           onOpenMessages={handleOpenMessages}
-          onSave={(companyData) => {
-            setUserData(prev => ({
-              ...prev,
-              companyData: { ...prev.companyData, ...companyData }
-            }));
+          onSave={async (companyData) => {
+            try {
+              await api.companies.create(companyData);
+              const updatedUser = await api.auth.getCurrentUser();
+              updateUser(updatedUser.user);
+            } catch (error) {
+              alert('Failed to save company data');
+            }
           }}
         />
       );
@@ -295,7 +348,7 @@ const App = () => {
     case 'talent-pool':
       page = (
         <TalentPoolPage
-          userData={userData}
+          userData={user}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
           onOpenMessages={handleOpenMessages}
@@ -306,7 +359,7 @@ const App = () => {
     case 'profile':
       page = (
         <ProfilePage
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -318,7 +371,7 @@ const App = () => {
     case 'settings':
       page = (
         <SettingsPage
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -330,7 +383,7 @@ const App = () => {
     default:
       page = (
         <FeedPage
-          userData={userData}
+          userData={user}
           userRole={userRole}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
@@ -343,8 +396,16 @@ const App = () => {
   return (
     <ToastProvider>
       {page}
-      <MessagingDrawer open={isMessagesOpen} onClose={handleCloseMessages} currentUser={userData} />
+      <MessagingDrawer open={isMessagesOpen} onClose={handleCloseMessages} currentUser={user} />
     </ToastProvider>
+  );
+};
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 

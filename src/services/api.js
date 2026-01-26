@@ -36,16 +36,31 @@ const apiRequest = async (endpoint, options = {}) => {
       headers,
     });
 
-    const data = await response.json();
+    let data;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      throw new Error(text || 'Request failed');
+    }
 
     if (!response.ok) {
-      throw new Error(data.error || 'Request failed');
+      const errorMessage = data.error || data.message || 'Request failed';
+      const error = new Error(errorMessage);
+      error.status = response.status;
+      error.data = data;
+      throw error;
     }
 
     return data;
   } catch (error) {
+    if (error instanceof Error) {
+      console.error('API Error:', error.message, endpoint);
+      throw error;
+    }
     console.error('API Error:', error);
-    throw error;
+    throw new Error('Network error or invalid response');
   }
 };
 

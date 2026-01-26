@@ -64,12 +64,12 @@ router.post('/', authenticate, [
   }
 });
 
-// Get company profile
-router.get('/me', authenticate, requireEmployer, async (req, res) => {
+// Get company profile (for current user)
+router.get('/me', authenticate, async (req, res) => {
   try {
     const result = await query(
-      'SELECT * FROM companies WHERE id = $1',
-      [req.companyId]
+      'SELECT * FROM companies WHERE user_id = $1',
+      [req.user.id]
     );
 
     if (result.rows.length === 0) {
