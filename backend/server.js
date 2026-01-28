@@ -26,6 +26,7 @@ import projectRoutes from './routes/projects.js';
 import profileRoutes from './routes/profiles.js';
 import resumeRoutes from './routes/resumes.js';
 import interviewRoutes from './routes/interviews.js';
+import messageRoutes from './routes/messages.js';
 
 // Import database connection
 import { pool } from './config/database.js';
@@ -127,6 +128,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/interviews', interviewRoutes);
+app.use('/api/messages', messageRoutes);
 
 // 404 Handler
 app.use((req, res) => {

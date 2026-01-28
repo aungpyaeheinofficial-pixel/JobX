@@ -18,11 +18,13 @@ router.get('/', optionalAuth, async (req, res) => {
         u.location as author_location,
         u.avatar_url as author_avatar,
         CASE WHEN l.id IS NOT NULL THEN true ELSE false END as is_liked,
-        CASE WHEN b.id IS NOT NULL THEN true ELSE false END as is_bookmarked
+        CASE WHEN b.id IS NOT NULL THEN true ELSE false END as is_bookmarked,
+        CASE WHEN s.id IS NOT NULL THEN true ELSE false END as is_shared
       FROM feed_posts p
       INNER JOIN users u ON p.author_id = u.id
       LEFT JOIN post_likes l ON p.id = l.post_id AND l.user_id = $1
       LEFT JOIN post_bookmarks b ON p.id = b.post_id AND b.user_id = $1
+      LEFT JOIN post_shares s ON p.id = s.post_id AND s.user_id = $1
       WHERE 1=1
     `;
 
