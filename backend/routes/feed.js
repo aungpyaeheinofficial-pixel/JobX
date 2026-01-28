@@ -51,7 +51,7 @@ router.get('/', optionalAuth, async (req, res) => {
 
 // Create post
 router.post('/', authenticate, [
-  body('content').trim().isLength({ min: 10 }).withMessage('Content must be at least 10 characters'),
+  body('content').trim().isLength({ min: 1 }).withMessage('Content cannot be empty'),
   body('post_type').optional().isIn(['progress', 'thought', 'announcement', 'opportunity', 'story']),
 ], async (req, res) => {
   try {

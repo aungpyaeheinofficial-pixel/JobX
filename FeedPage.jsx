@@ -814,18 +814,29 @@ const FeedPage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages }) 
 
   const handleNewPost = async ({ content, type, image }) => {
     try {
+      // Validate content length (backend requires min 10 chars)
+      if (!content || content.trim().length < 10) {
+        alert('Post content must be at least 10 characters long.');
+        return;
+      }
+
       const postData = {
-        content,
+        content: content.trim(),
         post_type: type,
         image_url: image || null,
       };
       
-      await api.feed.createPost(postData);
+      const response = await api.feed.createPost(postData);
+      
       // Reload posts to get the new one from server
       await loadPosts();
+      
+      // Show success feedback
+      console.log('Post created successfully:', response);
     } catch (error) {
       console.error('Failed to create post:', error);
-      alert('Failed to create post. Please try again.');
+      const errorMsg = error.message || error.data?.errors?.[0]?.msg || 'Failed to create post. Please try again.';
+      alert(errorMsg);
     }
   };
 

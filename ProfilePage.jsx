@@ -195,23 +195,52 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
 
   const handleSave = async () => {
     try {
+      // Transform experience and portfolio to match API format
+      const transformedExperience = (profile.experience || []).map(exp => ({
+        title: exp.title || '',
+        company: exp.company || '',
+        location: exp.location || '',
+        start_date: exp.startDate || exp.start_date || '',
+        end_date: exp.endDate || exp.end_date || null,
+        current: exp.current !== undefined ? exp.current : (!exp.endDate && !exp.end_date),
+        description: exp.description || ''
+      }));
+
+      const transformedPortfolio = (profile.portfolio || []).map(item => ({
+        title: item.title || '',
+        description: item.description || '',
+        image_url: item.imageUrl || item.image_url || '',
+        project_url: item.projectUrl || item.project_url || '',
+        tags: Array.isArray(item.tags) ? item.tags : []
+      }));
+
+      const transformedCertifications = (profile.certifications || []).map(cert => ({
+        name: cert.name || '',
+        issuer: cert.issuer || '',
+        issue_date: cert.issueDate || cert.issue_date || '',
+        expiry_date: cert.expiryDate || cert.expiry_date || null,
+        credential_id: cert.credentialId || cert.credential_id || '',
+        credential_url: cert.credentialUrl || cert.credential_url || '',
+        image_url: cert.imageUrl || cert.image_url || ''
+      }));
+
       // Save extended profile
       const profileData = {
-        bio: editForm.bio,
-        title: editForm.title,
-        website: editForm.website,
+        bio: editForm.bio || '',
+        title: editForm.title || '',
+        website: editForm.website || '',
         phone: editForm.phone || null,
         experience_years: editForm.experience_years || null,
-        work_experience: profile.experience,
-        portfolio_items: profile.portfolio,
-        certifications: profile.certifications,
-        education: editForm.education || []
+        work_experience: transformedExperience,
+        portfolio_items: transformedPortfolio,
+        certifications: transformedCertifications,
+        education: Array.isArray(editForm.education) ? editForm.education : []
       };
 
       await api.profiles.updateExtended(profileData);
 
       // Also update basic user profile if needed
-      if (editForm.name !== profile.name || editForm.location !== profile.location) {
+      if (editForm.name !== profile.name || editForm.location !== profile.location || editForm.avatarUrl !== profile.avatarUrl) {
         await api.users.updateProfile({
           name: editForm.name,
           location: editForm.location,
@@ -223,7 +252,7 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
       setIsEditing(false);
       setAvatarError('');
       
-      // Reload to get latest data
+      // Reload to get latest data from database
       await loadProfile();
     } catch (error) {
       console.error('Failed to save profile:', error);
@@ -273,14 +302,43 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
   };
 
   // Experience management
-  const addExperience = () => {
+  const addExperience = async () => {
     if (!newExperience.title || !newExperience.company) return;
     const exp = {
-      ...newExperience,
-      id: Date.now()
+      title: newExperience.title,
+      company: newExperience.company,
+      location: newExperience.location || '',
+      start_date: newExperience.startDate || '',
+      end_date: newExperience.endDate || null,
+      current: newExperience.current || false,
+      description: newExperience.description || ''
     };
-    setProfile(prev => ({ ...prev, experience: [exp, ...prev.experience] }));
-    setEditForm(prev => ({ ...prev, experience: [exp, ...prev.experience] }));
+    
+    // Update local state immediately
+    const updatedExp = { ...exp, id: Date.now() };
+    setProfile(prev => ({ ...prev, experience: [updatedExp, ...prev.experience] }));
+    setEditForm(prev => ({ ...prev, experience: [updatedExp, ...prev.experience] }));
+    
+    // Save to database immediately
+    try {
+      const currentExperience = [...profile.experience, updatedExp];
+      await api.profiles.updateExtended({
+        work_experience: currentExperience.map(e => ({
+          title: e.title || e.title,
+          company: e.company || e.company,
+          location: e.location || e.location || '',
+          start_date: e.startDate || e.start_date || '',
+          end_date: e.endDate || e.end_date || null,
+          current: e.current !== undefined ? e.current : (!e.endDate && !e.end_date),
+          description: e.description || ''
+        }))
+      });
+      console.log('Experience saved to database');
+    } catch (error) {
+      console.error('Failed to save experience:', error);
+      alert('Failed to save experience. Please try saving again.');
+    }
+    
     setNewExperience({ title: '', company: '', location: '', startDate: '', endDate: '', current: false, description: '' });
     setShowAddExperience(false);
   };
@@ -291,14 +349,39 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
   };
 
   // Portfolio management
-  const addPortfolioItem = () => {
+  const addPortfolioItem = async () => {
     if (!newPortfolioItem.title) return;
     const item = {
-      ...newPortfolioItem,
-      id: Date.now()
+      title: newPortfolioItem.title,
+      description: newPortfolioItem.description || '',
+      image_url: newPortfolioItem.imageUrl || '',
+      project_url: newPortfolioItem.projectUrl || '',
+      tags: Array.isArray(newPortfolioItem.tags) ? newPortfolioItem.tags : []
     };
-    setProfile(prev => ({ ...prev, portfolio: [...prev.portfolio, item] }));
-    setEditForm(prev => ({ ...prev, portfolio: [...prev.portfolio, item] }));
+    
+    // Update local state immediately
+    const updatedItem = { ...item, id: Date.now() };
+    setProfile(prev => ({ ...prev, portfolio: [...prev.portfolio, updatedItem] }));
+    setEditForm(prev => ({ ...prev, portfolio: [...prev.portfolio, updatedItem] }));
+    
+    // Save to database immediately
+    try {
+      const currentPortfolio = [...profile.portfolio, updatedItem];
+      await api.profiles.updateExtended({
+        portfolio_items: currentPortfolio.map(p => ({
+          title: p.title,
+          description: p.description || '',
+          image_url: p.imageUrl || p.image_url || '',
+          project_url: p.projectUrl || p.project_url || '',
+          tags: Array.isArray(p.tags) ? p.tags : []
+        }))
+      });
+      console.log('Portfolio item saved to database');
+    } catch (error) {
+      console.error('Failed to save portfolio item:', error);
+      alert('Failed to save portfolio item. Please try saving again.');
+    }
+    
     setNewPortfolioItem({ title: '', description: '', imageUrl: '', projectUrl: '', tags: [] });
     setPortfolioTagInput('');
     setShowAddPortfolio(false);
