@@ -82,25 +82,46 @@ const ApplicationModal = ({ job, isOpen, onClose, onSubmit, existingApplication 
     }
     
     setIsSubmitting(true);
+    setError('');
     
-    // Simulate upload delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    onSubmit({
-      jobId: job.id,
-      jobTitle: job.title,
-      company: job.company,
-      cvFileName: cvFile.name,
-      cvFileSize: cvFile.size,
-      coverLetter,
-      appliedAt: new Date().toISOString(),
-      status: 'pending'
-    });
-    
-    setIsSubmitting(false);
-    setCvFile(null);
-    setCoverLetter('');
-    onClose();
+    try {
+      // TODO: Upload file to storage service (S3, Cloudinary, etc.)
+      // For now, create a data URL or use file name as placeholder
+      // In production, you'd upload to S3/Cloudinary and get a URL
+      let resumeUrl = '';
+      
+      // Option 1: Convert to data URL (not recommended for large files, but works for demo)
+      const reader = new FileReader();
+      resumeUrl = await new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(cvFile);
+      });
+      
+      // Option 2: Use file name as placeholder (if backend accepts it)
+      // resumeUrl = cvFile.name;
+      
+      onSubmit({
+        jobId: job.id,
+        jobTitle: job.title,
+        company: job.company,
+        cvFileName: cvFile.name,
+        cvFileSize: cvFile.size,
+        resumeUrl: resumeUrl, // Pass the data URL or uploaded URL
+        coverLetter,
+        appliedAt: new Date().toISOString(),
+        status: 'pending'
+      });
+      
+      setCvFile(null);
+      setCoverLetter('');
+      onClose();
+    } catch (err) {
+      setError('Failed to process file. Please try again.');
+      console.error('File processing error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // If already applied, show status
@@ -602,22 +623,81 @@ const JobsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout, ap
     return applications.find(app => app.jobId === jobId);
   };
 
-  const ensureSelectedJob = (job) => {
-    setSelectedJob(job);
+  const ensureSelectedJob = async (job) => {
+    // Store selected job ID for persistence
+    if (job?.id) {
+      sessionStorage.setItem('selectedJobId', job.id);
+    }
+    
+    // Fetch full job details from API
+    try {
+      const response = await api.jobs.getById(job.id);
+      const fullJob = response.job || job;
+      
+      // Transform API response to match component format
+      const transformedJob = {
+        id: fullJob.id,
+        title: fullJob.title || '',
+        company: fullJob.company_name || fullJob.company || '',
+        location: fullJob.location || '',
+        type: fullJob.job_type || 'Full-time',
+        workMode: fullJob.work_mode || 'On-site',
+        classification: fullJob.classification || fullJob.company_industry || '',
+        salary: fullJob.salary_range || fullJob.salary || '',
+        posted: formatTimestamp(fullJob.created_at),
+        postedDays: getDaysAgo(fullJob.created_at),
+        description: fullJob.description || '',
+        requiredSkills: Array.isArray(fullJob.required_skills) ? fullJob.required_skills : [],
+        requirements: fullJob.requirements || '',
+        verified: fullJob.verified || false,
+        image: fullJob.company_logo || false,
+        hasApplied: fullJob.has_applied || false,
+        isSaved: fullJob.is_saved || false,
+        companyLogo: fullJob.company_logo
+      };
+      
+      setSelectedJob(transformedJob);
+    } catch (error) {
+      console.error('Failed to load job details:', error);
+      // Fallback to job from list
+      setSelectedJob(job);
+    }
   };
+
+  // Load selected job on mount if persisted
+  useEffect(() => {
+    if (loading || jobs.length === 0) return;
+    
+    const savedJobId = sessionStorage.getItem('selectedJobId');
+    if (savedJobId) {
+      const savedJob = jobs.find(j => j.id === savedJobId);
+      if (savedJob) {
+        ensureSelectedJob(savedJob);
+        return;
+      }
+    }
+    
+    // If no saved job and no selected job, select first one
+    if (!selectedJob && filteredJobs.length > 0) {
+      ensureSelectedJob(filteredJobs[0]);
+    }
+  }, [loading, jobs]);
 
   useEffect(() => {
     if (!filteredJobs.length) {
       setSelectedJob(null);
+      sessionStorage.removeItem('selectedJobId');
       return;
     }
     if (!selectedJob) {
-      setSelectedJob(filteredJobs[0]);
+      ensureSelectedJob(filteredJobs[0]);
       return;
     }
     const stillVisible = filteredJobs.some((j) => j.id === selectedJob.id);
-    if (!stillVisible) setSelectedJob(filteredJobs[0]);
-  }, [filteredJobs, selectedJob]);
+    if (!stillVisible) {
+      ensureSelectedJob(filteredJobs[0]);
+    }
+  }, [filteredJobs]);
 
   useEffect(() => {
     if (!showFilters) return;
@@ -657,10 +737,36 @@ const JobsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout, ap
     setShowApplicationModal(true);
   };
 
-  const handleApplicationSubmit = (applicationData) => {
-    if (onApply) {
-      onApply(applicationData);
+  const handleApplicationSubmit = async (applicationData) => {
+    try {
+      // Call API directly to ensure it's saved to database
+      await api.applications.apply(
+        applicationData.jobId,
+        applicationData.coverLetter || '',
+        applicationData.resumeUrl || applicationData.cvFileUrl || ''
+      );
+      
+      // Also call parent handler if provided (for App.jsx to reload applications)
+      if (onApply) {
+        await onApply(applicationData.jobId, applicationData.coverLetter, applicationData.resumeUrl);
+      }
+      
       showSuccess('Application submitted successfully!');
+      setShowApplicationModal(false);
+      
+      // Reload jobs to update has_applied status
+      await loadJobs();
+      
+      // Reload saved jobs to refresh status
+      await loadSavedJobs();
+      
+      // Reload selected job details to show updated status
+      if (selectedJob) {
+        await ensureSelectedJob(selectedJob);
+      }
+    } catch (error) {
+      console.error('Failed to submit application:', error);
+      alert(error.message || 'Failed to submit application. Please try again.');
     }
   };
 
@@ -1103,42 +1209,49 @@ const JobsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout, ap
                   <span className="text-2xl font-semibold text-gray-900">{selectedJob.salary}</span>
                 </div>
 
-                {/* Primary CTA - Apply Now (LinkedIn/Indeed Style) */}
-                {canApply && (
-                  <div className="mb-12">
-                    {getApplicationForJob(selectedJob.id) ? (
-                      <PremiumButton
-                        variant="secondary"
-                        onClick={handleApplyClick}
-                        className="text-xl px-12 py-5 bg-green-50 border-2 border-green-600 text-green-700 hover:bg-green-100"
-                      >
-                        <CheckCircle className="w-6 h-6" />
-                        Applied - View Status
-                      </PremiumButton>
-                    ) : (
-                      <PremiumButton
-                        variant="primary"
-                        onClick={handleApplyClick}
-                        className="text-xl px-12 py-5"
-                      >
-                        <ArrowRight className="w-6 h-6" />
-                        Apply Now
-                      </PremiumButton>
-                    )}
+                {/* Primary CTA - Apply Now and Save (LinkedIn/Indeed Style) */}
+                <div className="mb-12 flex items-center gap-4 flex-wrap">
+                  {/* Apply Button - Only for Job Seekers */}
+                  {canApply && (
+                    <>
+                      {getApplicationForJob(selectedJob.id) ? (
+                        <PremiumButton
+                          variant="secondary"
+                          onClick={handleApplyClick}
+                          className="text-xl px-12 py-5 bg-green-50 border-2 border-green-600 text-green-700 hover:bg-green-100"
+                        >
+                          <CheckCircle className="w-6 h-6" />
+                          Applied - View Status
+                        </PremiumButton>
+                      ) : (
+                        <PremiumButton
+                          variant="primary"
+                          onClick={handleApplyClick}
+                          className="text-xl px-12 py-5"
+                        >
+                          <ArrowRight className="w-6 h-6" />
+                          Apply Now
+                        </PremiumButton>
+                      )}
+                    </>
+                  )}
 
-                    {/* Save Job - Secondary Action */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleSaveJob(selectedJob.id);
-                      }}
-                      className="ml-4 px-8 py-5 border-2 border-gray-200 rounded-full hover:border-gray-300 hover:bg-gray-50 transition-all text-lg font-medium inline-flex items-center gap-2"
-                    >
-                      <Bookmark className={`w-5 h-5 ${savedJobs.includes(selectedJob.id) ? 'fill-black' : ''}`} />
-                      {savedJobs.includes(selectedJob.id) ? 'Saved' : 'Save Job'}
-                    </button>
-                  </div>
-                )}
+                  {/* Save Job Button - Available for Everyone */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSaveJob(selectedJob.id);
+                    }}
+                    className={`px-8 py-5 border-2 rounded-full hover:border-gray-300 hover:bg-gray-50 transition-all text-lg font-medium inline-flex items-center gap-2 ${
+                      savedJobs.includes(selectedJob.id) || selectedJob.isSaved
+                        ? 'border-black bg-gray-50'
+                        : 'border-gray-200'
+                    }`}
+                  >
+                    <Bookmark className={`w-5 h-5 ${savedJobs.includes(selectedJob.id) || selectedJob.isSaved ? 'fill-black' : ''}`} />
+                    {savedJobs.includes(selectedJob.id) || selectedJob.isSaved ? 'Saved' : 'Save Job'}
+                  </button>
+                </div>
 
                 <div className="flex flex-col gap-4 text-gray-600 mb-12 pt-8 border-t border-gray-200">
                   <div className="flex items-center gap-3">
