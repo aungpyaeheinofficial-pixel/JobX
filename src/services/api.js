@@ -225,10 +225,22 @@ export const feedAPI = {
   },
 
   createPost: async (postData) => {
-    return apiRequest('/feed', {
-      method: 'POST',
-      body: JSON.stringify(postData),
-    });
+    if (import.meta.env.DEV) {
+      console.log('📤 Creating post:', postData);
+    }
+    try {
+      const response = await apiRequest('/feed', {
+        method: 'POST',
+        body: JSON.stringify(postData),
+      });
+      if (import.meta.env.DEV) {
+        console.log('✅ Post created successfully:', response);
+      }
+      return response;
+    } catch (error) {
+      console.error('❌ Post creation failed:', error);
+      throw error;
+    }
   },
 
   likePost: async (postId) => {
@@ -355,10 +367,22 @@ export const profilesAPI = {
   },
 
   updateExtended: async (profileData) => {
-    return apiRequest('/profiles/me', {
-      method: 'PUT',
-      body: JSON.stringify(profileData),
-    });
+    if (import.meta.env.DEV) {
+      console.log('📤 Updating extended profile:', profileData);
+    }
+    try {
+      const response = await apiRequest('/profiles/me', {
+        method: 'PUT',
+        body: JSON.stringify(profileData),
+      });
+      if (import.meta.env.DEV) {
+        console.log('✅ Profile updated successfully:', response);
+      }
+      return response;
+    } catch (error) {
+      console.error('❌ Profile update failed:', error);
+      throw error;
+    }
   },
 };
 

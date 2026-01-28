@@ -303,7 +303,11 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
 
   // Experience management
   const addExperience = async () => {
-    if (!newExperience.title || !newExperience.company) return;
+    if (!newExperience.title || !newExperience.company) {
+      alert('Please fill in at least Title and Company');
+      return;
+    }
+    
     const exp = {
       title: newExperience.title,
       company: newExperience.company,
@@ -316,27 +320,70 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
     
     // Update local state immediately
     const updatedExp = { ...exp, id: Date.now() };
-    setProfile(prev => ({ ...prev, experience: [updatedExp, ...prev.experience] }));
-    setEditForm(prev => ({ ...prev, experience: [updatedExp, ...prev.experience] }));
+    const updatedExperience = [updatedExp, ...profile.experience];
     
-    // Save to database immediately
+    setProfile(prev => ({ ...prev, experience: updatedExperience }));
+    setEditForm(prev => ({ ...prev, experience: updatedExperience }));
+    
+    // Save to database immediately - need to send ALL profile fields
     try {
-      const currentExperience = [...profile.experience, updatedExp];
-      await api.profiles.updateExtended({
-        work_experience: currentExperience.map(e => ({
-          title: e.title || e.title,
-          company: e.company || e.company,
-          location: e.location || e.location || '',
-          start_date: e.startDate || e.start_date || '',
-          end_date: e.endDate || e.end_date || null,
-          current: e.current !== undefined ? e.current : (!e.endDate && !e.end_date),
-          description: e.description || ''
-        }))
-      });
-      console.log('Experience saved to database');
+      // Transform all experiences to API format
+      const transformedExperience = updatedExperience.map(e => ({
+        title: e.title || '',
+        company: e.company || '',
+        location: e.location || '',
+        start_date: e.startDate || e.start_date || '',
+        end_date: e.endDate || e.end_date || null,
+        current: e.current !== undefined ? e.current : (!e.endDate && !e.end_date),
+        description: e.description || ''
+      }));
+
+      // Transform portfolio and certifications too
+      const transformedPortfolio = (profile.portfolio || []).map(item => ({
+        title: item.title || '',
+        description: item.description || '',
+        image_url: item.imageUrl || item.image_url || '',
+        project_url: item.projectUrl || item.project_url || '',
+        tags: Array.isArray(item.tags) ? item.tags : []
+      }));
+
+      const transformedCertifications = (profile.certifications || []).map(cert => ({
+        name: cert.name || '',
+        issuer: cert.issuer || '',
+        issue_date: cert.issueDate || cert.issue_date || '',
+        expiry_date: cert.expiryDate || cert.expiry_date || null,
+        credential_id: cert.credentialId || cert.credential_id || '',
+        credential_url: cert.credentialUrl || cert.credential_url || '',
+        image_url: cert.imageUrl || cert.image_url || ''
+      }));
+
+      // Send complete profile data
+      const profileData = {
+        bio: editForm.bio || profile.bio || '',
+        title: editForm.title || profile.title || '',
+        website: editForm.website || profile.website || '',
+        phone: editForm.phone || null,
+        experience_years: editForm.experience_years || null,
+        work_experience: transformedExperience,
+        portfolio_items: transformedPortfolio,
+        certifications: transformedCertifications,
+        education: Array.isArray(editForm.education) ? editForm.education : []
+      };
+
+      console.log('Saving experience to database:', profileData);
+      const response = await api.profiles.updateExtended(profileData);
+      console.log('Experience saved successfully:', response);
+      
+      // Reload profile to get latest from database
+      await loadProfile();
     } catch (error) {
       console.error('Failed to save experience:', error);
-      alert('Failed to save experience. Please try saving again.');
+      console.error('Error details:', error.message, error.data);
+      alert(`Failed to save experience: ${error.message || 'Please try again.'}`);
+      // Revert local state on error
+      setProfile(prev => ({ ...prev, experience: profile.experience }));
+      setEditForm(prev => ({ ...prev, experience: profile.experience }));
+      return;
     }
     
     setNewExperience({ title: '', company: '', location: '', startDate: '', endDate: '', current: false, description: '' });
@@ -350,7 +397,11 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
 
   // Portfolio management
   const addPortfolioItem = async () => {
-    if (!newPortfolioItem.title) return;
+    if (!newPortfolioItem.title) {
+      alert('Please enter a title for your portfolio item');
+      return;
+    }
+    
     const item = {
       title: newPortfolioItem.title,
       description: newPortfolioItem.description || '',
@@ -361,25 +412,70 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
     
     // Update local state immediately
     const updatedItem = { ...item, id: Date.now() };
-    setProfile(prev => ({ ...prev, portfolio: [...prev.portfolio, updatedItem] }));
-    setEditForm(prev => ({ ...prev, portfolio: [...prev.portfolio, updatedItem] }));
+    const updatedPortfolio = [...profile.portfolio, updatedItem];
     
-    // Save to database immediately
+    setProfile(prev => ({ ...prev, portfolio: updatedPortfolio }));
+    setEditForm(prev => ({ ...prev, portfolio: updatedPortfolio }));
+    
+    // Save to database immediately - need to send ALL profile fields
     try {
-      const currentPortfolio = [...profile.portfolio, updatedItem];
-      await api.profiles.updateExtended({
-        portfolio_items: currentPortfolio.map(p => ({
-          title: p.title,
-          description: p.description || '',
-          image_url: p.imageUrl || p.image_url || '',
-          project_url: p.projectUrl || p.project_url || '',
-          tags: Array.isArray(p.tags) ? p.tags : []
-        }))
-      });
-      console.log('Portfolio item saved to database');
+      // Transform all portfolio items to API format
+      const transformedPortfolio = updatedPortfolio.map(p => ({
+        title: p.title || '',
+        description: p.description || '',
+        image_url: p.imageUrl || p.image_url || '',
+        project_url: p.projectUrl || p.project_url || '',
+        tags: Array.isArray(p.tags) ? p.tags : []
+      }));
+
+      // Transform experiences and certifications too
+      const transformedExperience = (profile.experience || []).map(exp => ({
+        title: exp.title || '',
+        company: exp.company || '',
+        location: exp.location || '',
+        start_date: exp.startDate || exp.start_date || '',
+        end_date: exp.endDate || exp.end_date || null,
+        current: exp.current !== undefined ? exp.current : (!exp.endDate && !exp.end_date),
+        description: exp.description || ''
+      }));
+
+      const transformedCertifications = (profile.certifications || []).map(cert => ({
+        name: cert.name || '',
+        issuer: cert.issuer || '',
+        issue_date: cert.issueDate || cert.issue_date || '',
+        expiry_date: cert.expiryDate || cert.expiry_date || null,
+        credential_id: cert.credentialId || cert.credential_id || '',
+        credential_url: cert.credentialUrl || cert.credential_url || '',
+        image_url: cert.imageUrl || cert.image_url || ''
+      }));
+
+      // Send complete profile data
+      const profileData = {
+        bio: editForm.bio || profile.bio || '',
+        title: editForm.title || profile.title || '',
+        website: editForm.website || profile.website || '',
+        phone: editForm.phone || null,
+        experience_years: editForm.experience_years || null,
+        work_experience: transformedExperience,
+        portfolio_items: transformedPortfolio,
+        certifications: transformedCertifications,
+        education: Array.isArray(editForm.education) ? editForm.education : []
+      };
+
+      console.log('Saving portfolio item to database:', profileData);
+      const response = await api.profiles.updateExtended(profileData);
+      console.log('Portfolio item saved successfully:', response);
+      
+      // Reload profile to get latest from database
+      await loadProfile();
     } catch (error) {
       console.error('Failed to save portfolio item:', error);
-      alert('Failed to save portfolio item. Please try saving again.');
+      console.error('Error details:', error.message, error.data);
+      alert(`Failed to save portfolio item: ${error.message || 'Please try again.'}`);
+      // Revert local state on error
+      setProfile(prev => ({ ...prev, portfolio: profile.portfolio }));
+      setEditForm(prev => ({ ...prev, portfolio: profile.portfolio }));
+      return;
     }
     
     setNewPortfolioItem({ title: '', description: '', imageUrl: '', projectUrl: '', tags: [] });

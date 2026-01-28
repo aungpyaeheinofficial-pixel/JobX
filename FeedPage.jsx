@@ -814,29 +814,32 @@ const FeedPage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages }) 
 
   const handleNewPost = async ({ content, type, image }) => {
     try {
-      // Validate content length (backend requires min 10 chars)
-      if (!content || content.trim().length < 10) {
-        alert('Post content must be at least 10 characters long.');
+      // Validate content
+      if (!content || !content.trim()) {
+        alert('Please enter some content for your post.');
         return;
       }
 
       const postData = {
         content: content.trim(),
-        post_type: type,
+        post_type: type || 'progress',
         image_url: image || null,
       };
       
+      console.log('Creating post:', postData);
       const response = await api.feed.createPost(postData);
+      console.log('Post created successfully:', response);
       
       // Reload posts to get the new one from server
       await loadPosts();
       
-      // Show success feedback
-      console.log('Post created successfully:', response);
+      // Show success feedback (optional - could use toast notification)
+      console.log('Post saved and reloaded from database');
     } catch (error) {
       console.error('Failed to create post:', error);
-      const errorMsg = error.message || error.data?.errors?.[0]?.msg || 'Failed to create post. Please try again.';
-      alert(errorMsg);
+      console.error('Error details:', error.message, error.data, error.status);
+      const errorMsg = error.message || error.data?.errors?.[0]?.msg || error.data?.error || 'Failed to create post. Please check your connection and try again.';
+      alert(`Error: ${errorMsg}`);
     }
   };
 
