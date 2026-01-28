@@ -104,6 +104,19 @@ router.post('/:id/like', authenticate, async (req, res) => {
   }
 });
 
+// Unlike post (DELETE method)
+router.delete('/:id/like', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await query('DELETE FROM post_likes WHERE post_id = $1 AND user_id = $2', [id, req.user.id]);
+    await query('UPDATE feed_posts SET likes_count = GREATEST(likes_count - 1, 0) WHERE id = $1', [id]);
+    res.json({ liked: false });
+  } catch (error) {
+    console.error('Unlike post error:', error);
+    res.status(500).json({ error: 'Failed to unlike post' });
+  }
+});
+
 // Bookmark/Unbookmark post
 router.post('/:id/bookmark', authenticate, async (req, res) => {
   try {
@@ -124,6 +137,18 @@ router.post('/:id/bookmark', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Bookmark post error:', error);
     res.status(500).json({ error: 'Failed to bookmark post' });
+  }
+});
+
+// Unbookmark post (DELETE method)
+router.delete('/:id/bookmark', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await query('DELETE FROM post_bookmarks WHERE post_id = $1 AND user_id = $2', [id, req.user.id]);
+    res.json({ bookmarked: false });
+  } catch (error) {
+    console.error('Unbookmark post error:', error);
+    res.status(500).json({ error: 'Failed to unbookmark post' });
   }
 });
 
