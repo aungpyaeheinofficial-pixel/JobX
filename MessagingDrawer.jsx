@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Expand, MoreHorizontal, Pencil, Search, Send, X } from 'lucide-react';
+import api from './src/services/api.js';
 
 function nowTime() {
   const d = new Date();
@@ -44,9 +45,11 @@ const seedThreads = [
 export default function MessagingDrawer({ open, onClose, currentUser }) {
   const [tab, setTab] = useState('all'); // all | unread | groups | communities
   const [query, setQuery] = useState('');
-  const [threads, setThreads] = useState(seedThreads);
+  const [threads, setThreads] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [activeId, setActiveId] = useState(null); // null => list view
   const [draft, setDraft] = useState('');
+  const [activeUserId, setActiveUserId] = useState(null); // Store user ID for active conversation
 
   const listSearchRef = useRef(null);
   const inputRef = useRef(null);
@@ -97,24 +100,117 @@ export default function MessagingDrawer({ open, onClose, currentUser }) {
     return () => clearTimeout(t);
   }, [open, activeId]);
 
+  // Load conversations when drawer opens
+  useEffect(() => {
+    if (open && currentUser) {
+      loadConversations();
+    }
+  }, [open, currentUser]);
+
+  // Load messages when active thread changes
+  useEffect(() => {
+    if (activeUserId) {
+      loadMessages(activeUserId);
+    }
+  }, [activeUserId]);
+
   useEffect(() => {
     if (!open || !activeId) return;
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [open, activeId, active?.messages?.length]);
 
+  const loadConversations = async () => {
+    try {
+      setLoading(true);
+      const response = await api.messages.getConversations();
+      
+      // Transform API response to match component format
+      const transformedThreads = (response.conversations || []).map(conv => ({
+        id: conv.user_id || conv.id,
+        type: 'dm',
+        name: conv.name || conv.user_name || 'User',
+        subtitle: conv.title || '',
+        avatarText: (conv.name || conv.user_name || 'U').charAt(0).toUpperCase(),
+        unread: conv.unread_count || 0,
+        lastMessage: conv.last_message || '',
+        lastMessageTime: conv.last_message_time || '',
+        messages: [] // Will be loaded when thread is opened
+      }));
+      
+      setThreads(transformedThreads);
+    } catch (error) {
+      console.error('Failed to load conversations:', error);
+      setThreads([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMessages = async (userId) => {
+    try {
+      const response = await api.messages.getMessages(userId);
+      
+      // Transform messages to component format
+      const transformedMessages = (response.messages || []).map(msg => ({
+        id: msg.id,
+        from: msg.sender_id === currentUser?.id ? 'me' : 'them',
+        text: msg.content || '',
+        time: formatMessageTime(msg.created_at)
+      }));
+
+      // Update the active thread with messages
+      setThreads(prev => prev.map(t => 
+        t.id === userId 
+          ? { ...t, messages: transformedMessages, unread: 0 }
+          : t
+      ));
+
+      // Mark messages as read
+      if (userId !== currentUser?.id) {
+        await api.messages.markAsRead(userId);
+      }
+    } catch (error) {
+      console.error('Failed to load messages:', error);
+    }
+  };
+
+  const formatMessageTime = (dateString) => {
+    if (!dateString) return 'Just now';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m`;
+    if (diffHours < 24) return `${diffHours}h`;
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays}d`;
+    return date.toLocaleDateString();
+  };
+
   const openThread = (id) => {
     setActiveId(id);
+    setActiveUserId(id);
     setThreads((prev) => prev.map((t) => (t.id === id ? { ...t, unread: 0 } : t)));
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     const text = draft.trim();
-    if (!text || !active) return;
-    const msg = { id: `m-${Date.now()}`, from: 'me', text, time: nowTime() };
-    setDraft('');
-    setThreads((prev) =>
-      prev.map((t) => (t.id === active.id ? { ...t, messages: [...t.messages, msg] } : t)),
-    );
+    if (!text || !active || !activeUserId) return;
+    
+    try {
+      await api.messages.sendMessage(activeUserId, text);
+      setDraft('');
+      
+      // Reload messages to get the new one
+      await loadMessages(activeUserId);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      alert('Failed to send message. Please try again.');
+    }
   };
 
   if (!open) return null;
@@ -224,9 +320,14 @@ export default function MessagingDrawer({ open, onClose, currentUser }) {
                     </button>
                   );
                 })}
-                {filtered.length === 0 && (
+                {loading ? (
+                  <div className="px-6 py-10 text-center text-gray-500">
+                    <div className="w-6 h-6 border-2 border-gray-300 border-t-black rounded-full animate-spin mx-auto mb-2"></div>
+                    Loading conversations...
+                  </div>
+                ) : filtered.length === 0 ? (
                   <div className="px-6 py-10 text-center text-gray-500">No chats found.</div>
-                )}
+                ) : null}
               </div>
             </>
           )}
@@ -258,7 +359,12 @@ export default function MessagingDrawer({ open, onClose, currentUser }) {
               </div>
 
               <div className="flex-1 overflow-auto px-4 py-4 space-y-3 bg-white">
-                {active.messages.map((m) => {
+                {loading && active.messages.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">Loading messages...</div>
+                ) : active.messages.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">No messages yet. Start the conversation!</div>
+                ) : (
+                  active.messages.map((m) => {
                   const mine = m.from === 'me';
                   return (
                     <div key={m.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
@@ -271,7 +377,8 @@ export default function MessagingDrawer({ open, onClose, currentUser }) {
                       </div>
                     </div>
                   );
-                })}
+                  })
+                )}
                 <div ref={endRef} />
               </div>
 

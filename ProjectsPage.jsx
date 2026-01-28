@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from './src/services/api.js';
 import {
   Plus,
   Search,
@@ -22,6 +23,7 @@ const ProjectsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // New Project Form State
   const [newProject, setNewProject] = useState({
@@ -33,124 +35,67 @@ const ProjectsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout
     duration: ''
   });
 
+  const [projects, setProjects] = useState([]);
+
+  // Fetch projects on mount
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  const loadProjects = async () => {
+    try {
+      setLoading(true);
+      const response = await api.projects.getAll();
+      
+      // Transform API response to match component format
+      const transformedProjects = (response.projects || []).map(project => ({
+        id: project.id,
+        title: project.title || project.name || '',
+        description: project.description || '',
+        category: project.category || 'Technology',
+        owner: {
+          name: project.owner_name || project.owner?.name || 'User',
+          avatar: (project.owner_name || project.owner?.name || 'U').charAt(0).toUpperCase()
+        },
+        team: project.team_members || [],
+        teamSize: project.team_size || project.max_team_size || 1,
+        currentMembers: project.current_members || 1,
+        skills: Array.isArray(project.skills) ? project.skills : [],
+        status: project.status || 'In Progress',
+        progress: project.progress || 0,
+        likes: project.likes_count || 0,
+        createdAt: formatTimestamp(project.created_at)
+      }));
+      
+      setProjects(transformedProjects);
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+      setProjects([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatTimestamp = (dateString) => {
+    if (!dateString) return 'Just now';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return `${Math.floor(diffDays / 30)} months ago`;
+  };
+
   const categories = [
     { id: 'all', name: 'All Projects', icon: GitBranch },
     { id: 'tech', name: 'Technology', icon: Code },
     { id: 'design', name: 'Design', icon: Palette },
     { id: 'construction', name: 'Construction', icon: Hammer },
     { id: 'business', name: 'Business', icon: TrendingUp }
-  ];
-
-  const projects = [
-    {
-      id: 1,
-      title: 'E-commerce Platform for Myanmar',
-      description: 'Building a modern e-commerce solution with payment integration for local businesses. Looking for backend and frontend developers.',
-      category: 'Technology',
-      owner: { name: 'Aung Ko Ko', avatar: 'A' },
-      team: [
-        { name: 'Ko Ko', avatar: 'K' },
-        { name: 'Su Su', avatar: 'S' }
-      ],
-      teamSize: 5,
-      currentMembers: 2,
-      skills: ['React', 'Node.js', 'MongoDB'],
-      status: 'In Progress',
-      progress: 45,
-      likes: 28,
-      createdAt: '1 week ago'
-    },
-    {
-      id: 2,
-      title: 'Mobile App for Construction Management',
-      description: 'Creating a mobile app to help construction teams track progress, manage inventory, and coordinate tasks in real-time.',
-      category: 'Construction',
-      owner: { name: 'Thu Ya', avatar: 'T' },
-      team: [
-        { name: 'Thu Ya', avatar: 'T' },
-        { name: 'Zaw Min', avatar: 'Z' },
-        { name: 'Aye Mon', avatar: 'A' }
-      ],
-      teamSize: 4,
-      currentMembers: 3,
-      skills: ['React Native', 'Firebase', 'UI/UX'],
-      status: 'In Progress',
-      progress: 70,
-      likes: 45,
-      createdAt: '3 days ago'
-    },
-    {
-      id: 3,
-      title: 'Design System for Myanmar Startups',
-      description: 'Open-source design system with Myanmar language support. Includes components, patterns, and guidelines.',
-      category: 'Design',
-      owner: { name: 'Aye Aye Mon', avatar: 'A' },
-      team: [
-        { name: 'Aye Mon', avatar: 'A' },
-        { name: 'Lin Lin', avatar: 'L' }
-      ],
-      teamSize: 3,
-      currentMembers: 2,
-      skills: ['Figma', 'React', 'Tailwind CSS'],
-      status: 'In Progress',
-      progress: 55,
-      likes: 67,
-      createdAt: '2 weeks ago'
-    },
-    {
-      id: 4,
-      title: 'Business Analytics Dashboard',
-      description: 'Dashboard for small businesses to track sales, inventory, and customer data. Need data visualization expertise.',
-      category: 'Business',
-      owner: { name: 'Zaw Lin', avatar: 'Z' },
-      team: [
-        { name: 'Zaw Lin', avatar: 'Z' }
-      ],
-      teamSize: 4,
-      currentMembers: 1,
-      skills: ['Data Analysis', 'Python', 'React'],
-      status: 'Looking for Team',
-      progress: 20,
-      likes: 34,
-      createdAt: '5 days ago'
-    },
-    {
-      id: 5,
-      title: 'Food Delivery Mobile App',
-      description: 'Local food delivery app connecting restaurants with customers. MVP completed, looking to expand features.',
-      category: 'Technology',
-      owner: { name: 'Min Khant', avatar: 'M' },
-      team: [
-        { name: 'Min Khant', avatar: 'M' },
-        { name: 'Htet Htet', avatar: 'H' },
-        { name: 'Kyaw Swar', avatar: 'K' }
-      ],
-      teamSize: 5,
-      currentMembers: 3,
-      skills: ['Flutter', 'Node.js', 'PostgreSQL'],
-      status: 'In Progress',
-      progress: 80,
-      likes: 92,
-      createdAt: '1 month ago'
-    },
-    {
-      id: 6,
-      title: 'Real Estate Listing Platform',
-      description: 'Comprehensive platform for property listings, virtual tours, and agent connections across Myanmar.',
-      category: 'Business',
-      owner: { name: 'Nyi Nyi', avatar: 'N' },
-      team: [
-        { name: 'Nyi Nyi', avatar: 'N' },
-        { name: 'May Thu', avatar: 'M' }
-      ],
-      teamSize: 6,
-      currentMembers: 2,
-      skills: ['Vue.js', 'Laravel', 'Maps API'],
-      status: 'Looking for Team',
-      progress: 30,
-      likes: 41,
-      createdAt: '1 week ago'
-    }
   ];
 
   const ProjectCard = ({ project }) => {
@@ -446,11 +391,48 @@ const ProjectsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout
         </div>
 
         {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map(project => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="w-8 h-8 border-4 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-500">Loading projects...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects
+              .filter(project => {
+                // Filter by category
+                if (selectedFilter !== 'all') {
+                  const categoryMap = {
+                    'tech': 'Technology',
+                    'design': 'Design',
+                    'construction': 'Construction',
+                    'business': 'Business'
+                  };
+                  if (project.category !== categoryMap[selectedFilter]) {
+                    return false;
+                  }
+                }
+                // Filter by search query
+                if (searchQuery.trim()) {
+                  const query = searchQuery.toLowerCase();
+                  return (
+                    project.title.toLowerCase().includes(query) ||
+                    project.description.toLowerCase().includes(query) ||
+                    project.skills.some(skill => skill.toLowerCase().includes(query))
+                  );
+                }
+                return true;
+              })
+              .map(project => (
+                <ProjectCard key={project.id} project={project} />
+              ))}
+            {projects.length === 0 && (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500">No projects found. Be the first to create one!</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Create Project Modal */}

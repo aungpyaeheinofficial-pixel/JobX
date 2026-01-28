@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import api from './src/services/api.js';
 import {
   Building2,
   MapPin,
@@ -20,35 +21,78 @@ import { HiringModeHeader } from './EnhancedLiquidNav.jsx';
  */
 const CompanyProfilePage = ({ userData, onNavigate, onOpenMessages, onLogout, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    companyName: userData?.companyData?.companyName || '',
-    industry: userData?.companyData?.industry || '',
-    companySize: userData?.companyData?.companySize || '',
-    location: userData?.companyData?.location || '',
-    website: userData?.companyData?.website || '',
-    description: userData?.companyData?.description || '',
-    email: userData?.companyData?.email || '',
-    phone: userData?.companyData?.phone || '',
+    companyName: '',
+    industry: '',
+    companySize: '',
+    location: '',
+    website: '',
+    description: '',
+    email: '',
+    phone: '',
   });
 
-  const handleSave = () => {
-    if (onSave) {
-      onSave(formData);
+  // Fetch company data on mount
+  useEffect(() => {
+    loadCompany();
+  }, []);
+
+  const loadCompany = async () => {
+    try {
+      setLoading(true);
+      const response = await api.companies.getMyCompany();
+      const company = response.company || {};
+      
+      setFormData({
+        companyName: company.company_name || '',
+        industry: company.industry || '',
+        companySize: company.company_size || '',
+        location: company.location || '',
+        website: company.website || '',
+        description: company.description || '',
+        email: company.email || '',
+        phone: company.phone || '',
+      });
+    } catch (error) {
+      console.error('Failed to load company:', error);
+      // Company might not exist yet, that's okay
+    } finally {
+      setLoading(false);
     }
-    setIsEditing(false);
+  };
+
+  const handleSave = async () => {
+    try {
+      const companyData = {
+        company_name: formData.companyName,
+        industry: formData.industry,
+        company_size: formData.companySize,
+        location: formData.location,
+        website: formData.website,
+        description: formData.description,
+        email: formData.email,
+        phone: formData.phone,
+      };
+
+      await api.companies.create(companyData);
+      
+      if (onSave) {
+        onSave(formData);
+      }
+      setIsEditing(false);
+      
+      // Reload to get latest data
+      await loadCompany();
+    } catch (error) {
+      console.error('Failed to save company:', error);
+      alert('Failed to save company profile. Please try again.');
+    }
   };
 
   const handleCancel = () => {
-    setFormData({
-      companyName: userData?.companyData?.companyName || '',
-      industry: userData?.companyData?.industry || '',
-      companySize: userData?.companyData?.companySize || '',
-      location: userData?.companyData?.location || '',
-      website: userData?.companyData?.website || '',
-      description: userData?.companyData?.description || '',
-      email: userData?.companyData?.email || '',
-      phone: userData?.companyData?.phone || '',
-    });
+    // Reload original data
+    loadCompany();
     setIsEditing(false);
   };
 

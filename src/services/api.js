@@ -174,6 +174,22 @@ export const jobsAPI = {
       method: 'DELETE',
     });
   },
+
+  getSaved: async () => {
+    return apiRequest('/jobs/saved');
+  },
+
+  saveJob: async (jobId) => {
+    return apiRequest(`/jobs/${jobId}/save`, {
+      method: 'POST',
+    });
+  },
+
+  unsaveJob: async (jobId) => {
+    return apiRequest(`/jobs/${jobId}/save`, {
+      method: 'DELETE',
+    });
+  },
 };
 
 // Applications API
@@ -221,8 +237,32 @@ export const feedAPI = {
     });
   },
 
+  unlikePost: async (postId) => {
+    return apiRequest(`/feed/${postId}/like`, {
+      method: 'DELETE',
+    });
+  },
+
   bookmarkPost: async (postId) => {
     return apiRequest(`/feed/${postId}/bookmark`, {
+      method: 'POST',
+    });
+  },
+
+  unbookmarkPost: async (postId) => {
+    return apiRequest(`/feed/${postId}/bookmark`, {
+      method: 'DELETE',
+    });
+  },
+
+  sharePost: async (postId) => {
+    return apiRequest(`/feed/${postId}/share`, {
+      method: 'POST',
+    });
+  },
+
+  viewPost: async (postId) => {
+    return apiRequest(`/feed/${postId}/view`, {
       method: 'POST',
     });
   },
@@ -291,14 +331,68 @@ export const companiesAPI = {
 
 // Users API
 export const usersAPI = {
-  getProfile: async (userId) => {
-    return apiRequest(`/users/${userId}`);
+  getProfile: async (userId, extended = false) => {
+    const params = extended ? '?extended=true' : '';
+    return apiRequest(`/users/${userId}${params}`);
   },
 
   updateProfile: async (profileData) => {
     return apiRequest('/users/profile', {
       method: 'PUT',
       body: JSON.stringify(profileData),
+    });
+  },
+};
+
+// Profiles API (Extended)
+export const profilesAPI = {
+  getExtended: async (userId) => {
+    return apiRequest(`/profiles/${userId}`);
+  },
+
+  getMyExtended: async () => {
+    return apiRequest('/profiles/me/extended');
+  },
+
+  updateExtended: async (profileData) => {
+    return apiRequest('/profiles/me', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  },
+};
+
+// Messages API
+export const messagesAPI = {
+  getConversations: async () => {
+    return apiRequest('/messages/conversations');
+  },
+
+  getMessages: async (userId) => {
+    return apiRequest(`/messages/user/${userId}`);
+  },
+
+  sendMessage: async (recipientId, content) => {
+    return apiRequest('/messages', {
+      method: 'POST',
+      body: JSON.stringify({ recipient_id: recipientId, content }),
+    });
+  },
+
+  markAsRead: async (senderId) => {
+    return apiRequest('/messages/read', {
+      method: 'PATCH',
+      body: JSON.stringify({ sender_id: senderId }),
+    });
+  },
+
+  getUnreadCount: async () => {
+    return apiRequest('/messages/unread/count');
+  },
+
+  deleteMessage: async (messageId) => {
+    return apiRequest(`/messages/${messageId}`, {
+      method: 'DELETE',
     });
   },
 };
@@ -339,6 +433,8 @@ export default {
   payments: paymentsAPI,
   companies: companiesAPI,
   users: usersAPI,
+  profiles: profilesAPI,
+  messages: messagesAPI,
   network: networkAPI,
   projects: projectsAPI,
   getToken,

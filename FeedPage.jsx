@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from './src/services/api.js';
 import {
   Heart,
   MessageCircle,
@@ -651,9 +652,69 @@ const ProfileCard = ({ userData, onNavigate }) => {
 
 // Main Feed Page
 const FeedPage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages }) => {
-  const [posts, setPosts] = useState(initialPosts);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [selectedCommunity, setSelectedCommunity] = useState('all');
+
+  // Fetch posts from API on mount
+  useEffect(() => {
+    loadPosts();
+  }, []);
+
+  const loadPosts = async () => {
+    try {
+      setLoading(true);
+      const response = await api.feed.getPosts();
+      
+      // Transform API response to match component format
+      const transformedPosts = (response.posts || []).map(post => ({
+        id: post.id,
+        author: {
+          name: post.author_name || 'User',
+          title: post.author_title || '',
+          avatar: post.author_avatar,
+          initials: (post.author_name || 'U').charAt(0).toUpperCase(),
+          location: post.author_location || '',
+          isVerified: false,
+        },
+        content: post.content || '',
+        image: post.image_url || null,
+        timestamp: formatTimestamp(post.created_at),
+        type: post.post_type || 'progress',
+        likes: post.likes_count || 0,
+        comments: post.comments_count || 0,
+        shares: post.shares_count || 0,
+        isLiked: post.is_liked || false,
+        isBookmarked: post.is_bookmarked || false,
+        isShared: post.is_shared || false,
+      }));
+      
+      setPosts(transformedPosts);
+    } catch (error) {
+      console.error('Failed to load posts:', error);
+      // Fallback to empty array on error
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatTimestamp = (dateString) => {
+    if (!dateString) return 'Just now';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
 
   const filteredPosts = useMemo(() => {
     let result = posts;
@@ -679,44 +740,93 @@ const FeedPage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages }) 
     return result;
   }, [posts, filter, selectedCommunity]);
 
-  const handleLike = (postId) => {
-    setPosts(prev => prev.map(post =>
-      post.id === postId
-        ? { ...post, isLiked: !post.isLiked, likes: post.isLiked ? post.likes - 1 : post.likes + 1 }
-        : post
+  const handleLike = async (postId) => {
+    const post = posts.find(p => p.id === postId);
+    const wasLiked = post?.isLiked;
+    
+    // Optimistic update
+    setPosts(prev => prev.map(p =>
+      p.id === postId
+        ? { ...p, isLiked: !p.isLiked, likes: p.isLiked ? p.likes - 1 : p.likes + 1 }
+        : p
     ));
+
+    try {
+      if (wasLiked) {
+        await api.feed.unlikePost(postId);
+      } else {
+        await api.feed.likePost(postId);
+      }
+      // Reload to get accurate counts
+      await loadPosts();
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+      // Revert on error
+      setPosts(prev => prev.map(p =>
+        p.id === postId
+          ? { ...p, isLiked: wasLiked, likes: wasLiked ? p.likes + 1 : p.likes - 1 }
+          : p
+      ));
+    }
   };
 
-  const handleBookmark = (postId) => {
-    setPosts(prev => prev.map(post =>
-      post.id === postId
-        ? { ...post, isBookmarked: !post.isBookmarked }
-        : post
+  const handleBookmark = async (postId) => {
+    const post = posts.find(p => p.id === postId);
+    const wasBookmarked = post?.isBookmarked;
+    
+    // Optimistic update
+    setPosts(prev => prev.map(p =>
+      p.id === postId ? { ...p, isBookmarked: !p.isBookmarked } : p
     ));
+
+    try {
+      if (wasBookmarked) {
+        await api.feed.unbookmarkPost(postId);
+      } else {
+        await api.feed.bookmarkPost(postId);
+      }
+    } catch (error) {
+      console.error('Failed to toggle bookmark:', error);
+      // Revert on error
+      setPosts(prev => prev.map(p =>
+        p.id === postId ? { ...p, isBookmarked: wasBookmarked } : p
+      ));
+    }
   };
 
-  const handleNewPost = ({ content, type, image }) => {
-    const newPost = {
-      id: Date.now(),
-      author: {
-        name: userData?.name || 'User',
-        title: userData?.title || 'Builder',
-        avatar: null,
-        initials: (userData?.name || 'U').charAt(0),
-        location: userData?.location || 'Myanmar',
-        isVerified: false,
-      },
-      content,
-      image,
-      timestamp: 'Just now',
-      type,
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      isLiked: false,
-      isBookmarked: false,
-    };
-    setPosts(prev => [newPost, ...prev]);
+  const handleShare = async (postId) => {
+    try {
+      await api.feed.sharePost(postId);
+      // Reload to get updated share count
+      await loadPosts();
+    } catch (error) {
+      console.error('Failed to share post:', error);
+    }
+  };
+
+  const handleView = async (postId) => {
+    try {
+      await api.feed.viewPost(postId);
+    } catch (error) {
+      console.error('Failed to record view:', error);
+    }
+  };
+
+  const handleNewPost = async ({ content, type, image }) => {
+    try {
+      const postData = {
+        content,
+        post_type: type,
+        image_url: image || null,
+      };
+      
+      await api.feed.createPost(postData);
+      // Reload posts to get the new one from server
+      await loadPosts();
+    } catch (error) {
+      console.error('Failed to create post:', error);
+      alert('Failed to create post. Please try again.');
+    }
   };
 
   return (
@@ -796,16 +906,27 @@ const FeedPage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages }) 
 
             {/* Posts */}
             <div className="space-y-6">
-              {filteredPosts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  onLike={handleLike}
-                  onComment={() => {}}
-                  onShare={() => {}}
-                  onBookmark={handleBookmark}
-                />
-              ))}
+              {loading ? (
+                <div className="text-center py-12">
+                  <div className="w-8 h-8 border-4 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-500">Loading posts...</p>
+                </div>
+              ) : filteredPosts.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">No posts found. Be the first to share something!</p>
+                </div>
+              ) : (
+                filteredPosts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    onLike={handleLike}
+                    onComment={() => {}}
+                    onShare={handleShare}
+                    onBookmark={handleBookmark}
+                  />
+                ))
+              )}
             </div>
           </section>
 

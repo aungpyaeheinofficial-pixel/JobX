@@ -1,5 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { EnhancedHeader } from './EnhancedLiquidNav.jsx';
+import api from './src/services/api.js';
 import {
   Bell,
   MessageSquare,
@@ -29,6 +30,7 @@ import {
 const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeSection, setActiveSection] = useState('about'); // about, portfolio, experience, certifications
+  const [loading, setLoading] = useState(true);
   const avatarInputRef = useRef(null);
   const portfolioInputRef = useRef(null);
   const certInputRef = useRef(null);
@@ -40,83 +42,94 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
   const [showAddPortfolio, setShowAddPortfolio] = useState(false);
 
   const [profile, setProfile] = useState({
-    name: userData?.name || 'Aung Pyae Hein',
-    email: userData?.email || 'aungpyaehein@example.com',
-    location: userData?.location || 'Yangon, Myanmar',
-    title: 'Full Stack Developer',
-    bio: 'Passionate about building products that make a difference. Currently focused on creating tools for Myanmar\'s tech community.',
-    website: 'aungpyaehein.dev',
-    avatarUrl: '',
-    skills: [
-      { id: 1, name: 'React', endorsements: 12, endorsed: false },
-      { id: 2, name: 'Node.js', endorsements: 8, endorsed: true },
-      { id: 3, name: 'TypeScript', endorsements: 15, endorsed: false },
-      { id: 4, name: 'Python', endorsements: 6, endorsed: false },
-      { id: 5, name: 'Design Systems', endorsements: 4, endorsed: true }
-    ],
-    experience: [
-      {
-        id: 1,
-        title: 'Senior Developer',
-        company: 'TechStart Myanmar',
-        location: 'Yangon',
-        startDate: '2022-01',
-        endDate: null,
-        current: true,
-        description: 'Leading frontend development and design system implementation. Built component library used across 5+ products.'
-      },
-      {
-        id: 2,
-        title: 'Full Stack Developer',
-        company: 'Digital Solutions',
-        location: 'Yangon',
-        startDate: '2020-03',
-        endDate: '2022-01',
-        current: false,
-        description: 'Built web applications for local and international clients. Specialized in React and Node.js development.'
-      }
-    ],
-    portfolio: [
-      {
-        id: 1,
-        title: 'JobX Platform',
-        description: 'Community platform for Myanmar builders connecting talent with opportunities.',
-        imageUrl: '',
-        projectUrl: 'https://jobx.mm',
-        tags: ['React', 'Node.js', 'MongoDB']
-      },
-      {
-        id: 2,
-        title: 'E-commerce Dashboard',
-        description: 'Analytics dashboard for online retailers with real-time insights.',
-        imageUrl: '',
-        projectUrl: '',
-        tags: ['Vue.js', 'D3.js', 'Firebase']
-      }
-    ],
-    certifications: [
-      {
-        id: 1,
-        name: 'AWS Solutions Architect',
-        issuer: 'Amazon Web Services',
-        issueDate: '2023-06',
-        expiryDate: '2026-06',
-        credentialId: 'AWS-SAA-123456',
-        credentialUrl: 'https://aws.amazon.com/verify',
-        imageUrl: ''
-      },
-      {
-        id: 2,
-        name: 'Google Cloud Professional',
-        issuer: 'Google',
-        issueDate: '2023-01',
-        expiryDate: null,
-        credentialId: 'GCP-PRO-789012',
-        credentialUrl: '',
-        imageUrl: ''
-      }
-    ]
+    name: userData?.name || '',
+    email: userData?.email || '',
+    location: userData?.location || '',
+    title: '',
+    bio: '',
+    website: '',
+    avatarUrl: userData?.avatar_url || '',
+    skills: [],
+    experience: [],
+    portfolio: [],
+    certifications: []
   });
+
+  // Fetch profile data on mount
+  useEffect(() => {
+    if (userData?.id) {
+      loadProfile();
+    }
+  }, [userData?.id]);
+
+  const loadProfile = async () => {
+    try {
+      setLoading(true);
+      // Fetch extended profile
+      const [userResponse, profileResponse] = await Promise.all([
+        api.users.getProfile(userData.id, true),
+        api.profiles.getMyExtended().catch(() => ({ profile: null }))
+      ]);
+
+      const user = userResponse.user || {};
+      const extendedProfile = profileResponse.profile || {};
+
+      setProfile({
+        name: user.name || userData?.name || '',
+        email: user.email || userData?.email || '',
+        location: user.location || userData?.location || '',
+        title: extendedProfile.title || '',
+        bio: extendedProfile.bio || '',
+        website: extendedProfile.website || '',
+        avatarUrl: user.avatar_url || userData?.avatar_url || '',
+        skills: Array.isArray(user.skills) ? user.skills.map((s, i) => ({
+          id: i + 1,
+          name: typeof s === 'string' ? s : s.name || s,
+          endorsements: 0,
+          endorsed: false
+        })) : [],
+        experience: Array.isArray(extendedProfile.work_experience) ? extendedProfile.work_experience.map((exp, i) => ({
+          id: i + 1,
+          title: exp.title || exp.position || '',
+          company: exp.company || exp.organization || '',
+          location: exp.location || '',
+          startDate: exp.start_date || exp.startDate || '',
+          endDate: exp.end_date || exp.endDate || null,
+          current: !exp.end_date && !exp.endDate,
+          description: exp.description || exp.responsibilities || ''
+        })) : [],
+        portfolio: Array.isArray(extendedProfile.portfolio_items) ? extendedProfile.portfolio_items.map((item, i) => ({
+          id: i + 1,
+          title: item.title || '',
+          description: item.description || '',
+          imageUrl: item.image_url || item.imageUrl || '',
+          projectUrl: item.project_url || item.projectUrl || '',
+          tags: Array.isArray(item.tags) ? item.tags : []
+        })) : [],
+        certifications: Array.isArray(extendedProfile.certifications) ? extendedProfile.certifications.map((cert, i) => ({
+          id: i + 1,
+          name: cert.name || cert.title || '',
+          issuer: cert.issuer || cert.organization || '',
+          issueDate: cert.issue_date || cert.issueDate || '',
+          expiryDate: cert.expiry_date || cert.expiryDate || null,
+          credentialId: cert.credential_id || cert.credentialId || '',
+          credentialUrl: cert.credential_url || cert.credentialUrl || '',
+          imageUrl: cert.image_url || cert.imageUrl || ''
+        })) : []
+      });
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+      // Use userData as fallback
+      setProfile(prev => ({
+        ...prev,
+        name: userData?.name || prev.name,
+        email: userData?.email || prev.email,
+        location: userData?.location || prev.location,
+      }));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const [editForm, setEditForm] = useState(profile);
   const [newExperience, setNewExperience] = useState({
@@ -180,10 +193,42 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
     }
   };
 
-  const handleSave = () => {
-    setProfile(editForm);
-    setIsEditing(false);
-    setAvatarError('');
+  const handleSave = async () => {
+    try {
+      // Save extended profile
+      const profileData = {
+        bio: editForm.bio,
+        title: editForm.title,
+        website: editForm.website,
+        phone: editForm.phone || null,
+        experience_years: editForm.experience_years || null,
+        work_experience: profile.experience,
+        portfolio_items: profile.portfolio,
+        certifications: profile.certifications,
+        education: editForm.education || []
+      };
+
+      await api.profiles.updateExtended(profileData);
+
+      // Also update basic user profile if needed
+      if (editForm.name !== profile.name || editForm.location !== profile.location) {
+        await api.users.updateProfile({
+          name: editForm.name,
+          location: editForm.location,
+          avatar_url: editForm.avatarUrl
+        });
+      }
+
+      setProfile(editForm);
+      setIsEditing(false);
+      setAvatarError('');
+      
+      // Reload to get latest data
+      await loadProfile();
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+      alert('Failed to save profile. Please try again.');
+    }
   };
 
   const handleCancel = () => {

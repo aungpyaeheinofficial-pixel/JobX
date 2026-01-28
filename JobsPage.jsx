@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import api from './src/services/api.js';
 import {
   Search,
   MapPin,
@@ -405,114 +406,124 @@ const JobsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout, ap
   const isJobSeeker = userRole === 'seeker' || userRole === 'both';
   const canApply = isJobSeeker; // Only job seekers can apply
 
-  const jobs = [
-    {
-      id: 1,
-      title: 'Frontend Developer',
-      company: 'TechStart Myanmar',
-      location: 'Yangon',
-      type: 'Full-time',
-      workMode: 'On-site',
-      classification: 'Technology',
-      salary: '800K - 1.2M MMK',
-      posted: '2 days ago',
-      postedDays: 2,
-      description: 'We are looking for a skilled Frontend Developer to join our growing team. You will work on building modern web applications using React, TypeScript, and modern CSS frameworks. This role offers opportunities to work with cutting-edge technologies and contribute to products used by thousands of users across Myanmar.',
-      requiredSkills: ['React', 'TypeScript', 'Responsive UI', 'JavaScript', 'APIs'],
-      requirements: 'Strong proficiency in React and JavaScript, experience with TypeScript, understanding of responsive design principles, good communication skills.',
-      verified: true,
-      image: true
-    },
-    {
-      id: 2,
-      title: 'UI/UX Designer',
-      company: 'Design Studio Yangon',
-      location: 'Yangon',
-      type: 'Internship',
-      workMode: 'Hybrid',
-      classification: 'Design',
-      salary: '300K - 500K MMK',
-      posted: '3 days ago',
-      postedDays: 3,
-      description: 'Join our creative team to design beautiful and intuitive user experiences for web and mobile applications. Work closely with developers to bring your designs to life.',
-      requiredSkills: ['Figma', 'Wireframing', 'UI Systems', 'User Research'],
-      requirements: 'Proficiency in Figma and Adobe Creative Suite, strong portfolio, understanding of user-centered design principles.',
-      verified: true
-    },
-    {
-      id: 3,
-      title: 'Project Manager',
-      company: 'Build Myanmar Co.',
-      location: 'Mandalay',
-      type: 'Full-time',
-      workMode: 'On-site',
-      classification: 'Construction',
-      salary: '700K - 1M MMK',
-      posted: '5 days ago',
-      postedDays: 5,
-      description: 'Lead construction projects from planning to completion. Coordinate with teams, manage timelines, and ensure quality delivery.',
-      requiredSkills: ['Project Planning', 'Stakeholder Mgmt', 'Risk Mgmt', 'Scheduling'],
-      requirements: 'PMP certification preferred, 3+ years in project management, excellent organizational skills.',
-      verified: false,
-      image: true
-    },
-    {
-      id: 4,
-      title: 'Full Stack Developer',
-      company: 'Digital Solutions Myanmar',
-      location: 'Yangon',
-      type: 'Freelance',
-      workMode: 'Remote',
-      classification: 'Technology',
-      salary: '900K - 1.5M MMK',
-      posted: '1 week ago',
-      postedDays: 7,
-      description: 'Build and maintain web applications for local and international clients. Work with modern tech stack including Node.js, React, and PostgreSQL.',
-      requiredSkills: ['Node.js', 'React', 'PostgreSQL', 'REST APIs', 'Deployment'],
-      requirements: 'Experience with both frontend and backend development, knowledge of databases, API design, and deployment workflows.',
-      verified: true
-    },
-    {
-      id: 5,
-      title: 'Business Development Manager',
-      company: 'Growth Partners Myanmar',
-      location: 'Yangon',
-      type: 'Full-time',
-      workMode: 'Hybrid',
-      classification: 'Business',
-      salary: '800K - 1.2M MMK',
-      posted: '1 week ago',
-      postedDays: 7,
-      description: 'Drive business growth by identifying new opportunities and partnerships. Build relationships with clients and expand our market presence.',
-      requiredSkills: ['B2B Sales', 'Negotiation', 'Pipeline', 'Partnerships'],
-      requirements: 'Strong sales background, excellent communication skills, experience in B2B relationships.',
-      verified: true
-    },
-    {
-      id: 6,
-      title: 'Mobile App Developer',
-      company: 'App Innovators',
-      location: 'Yangon',
-      type: 'Internship',
-      workMode: 'Hybrid',
-      classification: 'Technology',
-      salary: '750K - 1.1M MMK',
-      posted: '2 weeks ago',
-      postedDays: 14,
-      description: 'Develop iOS and Android applications using React Native and modern frameworks. Create engaging mobile experiences for our growing user base.',
-      requiredSkills: ['React Native', 'Mobile UI', 'State Mgmt', 'API Integration'],
-      requirements: 'Experience with React Native or Flutter, understanding of mobile UI/UX patterns, App Store deployment experience.',
-      verified: false
-    }
-  ];
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const toggleSaveJob = (jobId) => {
-    if (savedJobs.includes(jobId)) {
+  // Fetch jobs on mount
+  useEffect(() => {
+    loadJobs();
+    loadSavedJobs();
+  }, []);
+
+  const loadJobs = async () => {
+    try {
+      setLoading(true);
+      const filters = {};
+      if (whatQuery) filters.search = whatQuery;
+      if (whereQuery) filters.location = whereQuery;
+      if (typeFilter !== 'All') filters.job_type = typeFilter.toLowerCase().replace('-', '_');
+      if (workModeFilter !== 'All') filters.work_mode = workModeFilter.toLowerCase().replace(' ', '_');
+      
+      const response = await api.jobs.getAll(filters);
+      
+      // Transform API response to match component format
+      const transformedJobs = (response.jobs || []).map(job => ({
+        id: job.id,
+        title: job.title || '',
+        company: job.company_name || '',
+        location: job.location || '',
+        type: job.job_type || 'Full-time',
+        workMode: job.work_mode || 'On-site',
+        classification: job.classification || job.company_industry || '',
+        salary: job.salary_range || job.salary || '',
+        posted: formatTimestamp(job.created_at),
+        postedDays: getDaysAgo(job.created_at),
+        description: job.description || '',
+        requiredSkills: Array.isArray(job.required_skills) ? job.required_skills : [],
+        requirements: job.requirements || '',
+        verified: job.verified || false,
+        image: job.company_logo || false,
+        hasApplied: job.has_applied || false,
+        isSaved: job.is_saved || false,
+        companyLogo: job.company_logo
+      }));
+      
+      setJobs(transformedJobs);
+    } catch (error) {
+      console.error('Failed to load jobs:', error);
+      setJobs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadSavedJobs = async () => {
+    try {
+      const response = await api.jobs.getSaved();
+      const savedIds = (response.jobs || []).map(j => j.job_id || j.id);
+      setSavedJobs(savedIds);
+    } catch (error) {
+      console.error('Failed to load saved jobs:', error);
+    }
+  };
+
+  const formatTimestamp = (dateString) => {
+    if (!dateString) return 'Just now';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return `${Math.floor(diffDays / 30)} months ago`;
+  };
+
+  const getDaysAgo = (dateString) => {
+    if (!dateString) return 0;
+    const date = new Date(dateString);
+    const now = new Date();
+    return Math.floor((now - date) / 86400000);
+  };
+
+  // Reload jobs when filters change
+  useEffect(() => {
+    loadJobs();
+  }, [whatQuery, whereQuery, typeFilter, workModeFilter]);
+
+  const toggleSaveJob = async (jobId) => {
+    const isCurrentlySaved = savedJobs.includes(jobId);
+    
+    // Optimistic update
+    if (isCurrentlySaved) {
       setSavedJobs(savedJobs.filter(id => id !== jobId));
       showInfo('Job removed from saved');
     } else {
       setSavedJobs([...savedJobs, jobId]);
       showSuccess('Job saved successfully!');
+    }
+
+    try {
+      if (isCurrentlySaved) {
+        await api.jobs.unsaveJob(jobId);
+      } else {
+        await api.jobs.saveJob(jobId);
+      }
+      
+      // Update job's isSaved status
+      setJobs(prev => prev.map(job => 
+        job.id === jobId ? { ...job, isSaved: !isCurrentlySaved } : job
+      ));
+    } catch (error) {
+      console.error('Failed to toggle save job:', error);
+      // Revert on error
+      if (isCurrentlySaved) {
+        setSavedJobs([...savedJobs, jobId]);
+      } else {
+        setSavedJobs(savedJobs.filter(id => id !== jobId));
+      }
     }
   };
 
@@ -1047,7 +1058,12 @@ const JobsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout, ap
               </button>
               );
             })}
-            {filteredJobs.length === 0 && (
+            {loading ? (
+              <div className="p-10 text-center">
+                <div className="w-8 h-8 border-4 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="text-gray-500">Loading jobs...</div>
+              </div>
+            ) : filteredJobs.length === 0 ? (
               <div className="p-10 text-center">
                 <div className="text-2xl font-semibold mb-3">No matches</div>
                 <div className="text-gray-500">
