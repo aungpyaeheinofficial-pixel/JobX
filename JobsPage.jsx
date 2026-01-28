@@ -945,119 +945,6 @@ const JobsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout, ap
           )}
 
           <div className="divide-y divide-gray-100">
-            {filteredJobs.map((job) => {
-              const application = getApplicationForJob(job.id);
-              return (
-              <button
-                key={job.id}
-                onClick={() => ensureSelectedJob(job)}
-                className={`w-full text-left p-6 hover:bg-gray-50 transition-all micro-card ${
-                  selectedJob?.id === job.id ? 'bg-gray-50 border-l-4 border-black' : ''
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex-1">
-                  <h3 className="text-xl font-semibold leading-tight">
-                    {job.title}
-                  </h3>
-                      {application && (
-                        <span className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-                          application.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                          application.status === 'reviewed' ? 'bg-blue-100 text-blue-700' :
-                          application.status === 'interview' ? 'bg-purple-100 text-purple-700' :
-                          application.status === 'accepted' ? 'bg-green-100 text-green-700' :
-                          'bg-red-100 text-red-700'
-                        }`}>
-                          <CheckCircle className="w-3 h-3" />
-                          Applied
-                        </span>
-                      )}
-                    </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleSaveJob(job.id);
-                    }}
-                    className="p-1.5 hover:bg-white rounded-lg transition-colors flex-shrink-0 micro-icon"
-                  >
-                    <Bookmark
-                      className={`w-5 h-5 ${
-                        savedJobs.includes(job.id) ? 'fill-black text-black' : 'text-gray-400'
-                      }`}
-                    />
-                  </button>
-                </div>
-
-                <p className="text-base font-medium text-gray-900 mb-2">{job.company}</p>
-
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600 mb-3">
-                  <span className="flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4" />
-                    {job.location}
-                  </span>
-                  <span className="px-2.5 py-1 bg-gray-100 rounded-full text-xs font-semibold text-gray-800">
-                    {job.type}
-                  </span>
-                </div>
-
-                {Array.isArray(job.requiredSkills) && job.requiredSkills.length > 0 && (
-                  <div className="mb-3">
-                    <div className="text-xs font-semibold text-gray-500 mb-2">REQUIRED</div>
-                    <div className="flex flex-wrap gap-2">
-                      {job.requiredSkills.slice(0, 4).map((s) => (
-                        <span
-                          key={s}
-                          className="px-3 py-1 rounded-full text-xs font-medium bg-violet-50 text-violet-700 border border-violet-100"
-                        >
-                          {s}
-                        </span>
-                      ))}
-                      {job.requiredSkills.length > 4 && (
-                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                          +{job.requiredSkills.length - 4}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between text-sm mb-4">
-                  <span className="font-medium text-gray-900">{job.salary}</span>
-                  <span className="text-gray-500">{job.posted}</span>
-                </div>
-
-                {/* Quick Apply Button - Only for Job Seekers */}
-                {canApply && (
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    {application ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleApplyClick();
-                        }}
-                        className="w-full py-2.5 px-4 bg-green-50 border border-green-200 text-green-700 rounded-full hover:bg-green-100 transition-all text-sm font-medium flex items-center justify-center gap-2"
-                      >
-                        <CheckCircle className="w-4 h-4" />
-                        Applied
-                      </button>
-                    ) : (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedJob(job);
-                          handleApplyClick();
-                        }}
-                        className="w-full py-2.5 px-4 bg-black text-white rounded-full hover:bg-gray-800 transition-all text-sm font-medium flex items-center justify-center gap-2 group"
-                      >
-                        Apply Now
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </button>
-                    )}
-                  </div>
-                )}
-              </button>
-              );
-            })}
             {loading ? (
               <div className="p-10 text-center">
                 <div className="w-8 h-8 border-4 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
@@ -1070,6 +957,120 @@ const JobsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout, ap
                   Try changing filters or searching for a different skill.
                 </div>
               </div>
+            ) : (
+              filteredJobs.map((job) => {
+                const application = getApplicationForJob(job.id);
+                return (
+                <button
+                  key={job.id}
+                  onClick={() => ensureSelectedJob(job)}
+                  className={`w-full text-left p-6 hover:bg-gray-50 transition-all micro-card ${
+                    selectedJob?.id === job.id ? 'bg-gray-50 border-l-4 border-black' : ''
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex-1">
+                    <h3 className="text-xl font-semibold leading-tight">
+                      {job.title}
+                    </h3>
+                        {application && (
+                          <span className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                            application.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                            application.status === 'reviewed' ? 'bg-blue-100 text-blue-700' :
+                            application.status === 'interview' ? 'bg-purple-100 text-purple-700' :
+                            application.status === 'accepted' ? 'bg-green-100 text-green-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            <CheckCircle className="w-3 h-3" />
+                            Applied
+                          </span>
+                        )}
+                      </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSaveJob(job.id);
+                      }}
+                      className="p-1.5 hover:bg-white rounded-lg transition-colors flex-shrink-0 micro-icon"
+                    >
+                      <Bookmark
+                        className={`w-5 h-5 ${
+                          savedJobs.includes(job.id) ? 'fill-black text-black' : 'text-gray-400'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <p className="text-base font-medium text-gray-900 mb-2">{job.company}</p>
+
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600 mb-3">
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="w-4 h-4" />
+                      {job.location}
+                    </span>
+                    <span className="px-2.5 py-1 bg-gray-100 rounded-full text-xs font-semibold text-gray-800">
+                      {job.type}
+                    </span>
+                  </div>
+
+                  {Array.isArray(job.requiredSkills) && job.requiredSkills.length > 0 && (
+                    <div className="mb-3">
+                      <div className="text-xs font-semibold text-gray-500 mb-2">REQUIRED</div>
+                      <div className="flex flex-wrap gap-2">
+                        {job.requiredSkills.slice(0, 4).map((s) => (
+                          <span
+                            key={s}
+                            className="px-3 py-1 rounded-full text-xs font-medium bg-violet-50 text-violet-700 border border-violet-100"
+                          >
+                            {s}
+                          </span>
+                        ))}
+                        {job.requiredSkills.length > 4 && (
+                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                            +{job.requiredSkills.length - 4}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between text-sm mb-4">
+                    <span className="font-medium text-gray-900">{job.salary}</span>
+                    <span className="text-gray-500">{job.posted}</span>
+                  </div>
+
+                  {/* Quick Apply Button - Only for Job Seekers */}
+                  {canApply && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      {application ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleApplyClick();
+                          }}
+                          className="w-full py-2.5 px-4 bg-green-50 border border-green-200 text-green-700 rounded-full hover:bg-green-100 transition-all text-sm font-medium flex items-center justify-center gap-2"
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                          Applied
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedJob(job);
+                            handleApplyClick();
+                          }}
+                          className="w-full py-2.5 px-4 bg-black text-white rounded-full hover:bg-gray-800 transition-all text-sm font-medium flex items-center justify-center gap-2 group"
+                        >
+                          Apply Now
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </button>
+                );
+              })
             )}
           </div>
         </div>
