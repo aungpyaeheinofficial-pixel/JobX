@@ -1,7 +1,9 @@
 // API Service for JobX Frontend
 // Replace all local storage with API calls
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9999/api';
+// Use relative path if no explicit API URL is set (same origin)
+// Otherwise use the configured URL
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Debug: Log API URL on load (only in development)
 if (import.meta.env.DEV) {
@@ -38,7 +40,10 @@ const apiRequest = async (endpoint, options = {}) => {
   }
 
   try {
-    const fullUrl = `${API_URL}${endpoint}`;
+    // Handle relative paths (starting with /) vs full URLs
+    const fullUrl = API_URL.startsWith('http') 
+      ? `${API_URL}${endpoint}` 
+      : `${API_URL}${endpoint}`;
     
     // Debug logging in development
     if (import.meta.env.DEV) {

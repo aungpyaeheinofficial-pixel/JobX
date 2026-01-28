@@ -2,11 +2,14 @@
 // Use this in browser console to debug connection issues
 
 export const testConnection = async () => {
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9999/api';
+  const API_URL = import.meta.env.VITE_API_URL || '/api';
   
   try {
-    // Test health endpoint
-    const response = await fetch(`${API_URL.replace('/api', '')}/health`);
+    // Test health endpoint - handle both relative and absolute URLs
+    const healthUrl = API_URL.startsWith('http') 
+      ? `${API_URL.replace('/api', '')}/health`
+      : '/health';
+    const response = await fetch(healthUrl);
     const data = await response.json();
     console.log('✅ Backend Health Check:', data);
     return data;
@@ -18,7 +21,7 @@ export const testConnection = async () => {
 
 // Test auth endpoint
 export const testAuth = async () => {
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9999/api';
+  const API_URL = import.meta.env.VITE_API_URL || '/api';
   
   try {
     const response = await fetch(`${API_URL}/auth/me`, {
