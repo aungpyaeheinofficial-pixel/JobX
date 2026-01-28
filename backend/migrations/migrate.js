@@ -9,26 +9,23 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+const MIGRATIONS = ['001_initial_schema.sql', '002_extended_schema.sql'];
+
 async function runMigrations() {
   const client = await pool.connect();
   
   try {
-    await client.query('BEGIN');
-    
-    console.log('🔄 Running database migrations...');
-    
-    // Read migration file
-    const migrationSQL = fs.readFileSync(
-      join(__dirname, '001_initial_schema.sql'),
-      'utf8'
-    );
-    
-    // Execute migration
-    await client.query(migrationSQL);
-    
-    await client.query('COMMIT');
-    console.log('✅ Migrations completed successfully!');
-    
+    for (const file of MIGRATIONS) {
+      const path = join(__dirname, file);
+      if (!fs.existsSync(path)) continue;
+      await client.query('BEGIN');
+      console.log(`🔄 Running ${file}...`);
+      const migrationSQL = fs.readFileSync(path, 'utf8');
+      await client.query(migrationSQL);
+      await client.query('COMMIT');
+      console.log(`✅ ${file} completed`);
+    }
+    console.log('✅ All migrations completed successfully!');
   } catch (error) {
     await client.query('ROLLBACK');
     console.error('❌ Migration failed:', error);

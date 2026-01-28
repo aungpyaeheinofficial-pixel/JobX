@@ -23,6 +23,9 @@ import subscriptionRoutes from './routes/subscriptions.js';
 import companyRoutes from './routes/companies.js';
 import networkRoutes from './routes/network.js';
 import projectRoutes from './routes/projects.js';
+import profileRoutes from './routes/profiles.js';
+import resumeRoutes from './routes/resumes.js';
+import interviewRoutes from './routes/interviews.js';
 
 // Import database connection
 import { pool } from './config/database.js';
@@ -121,6 +124,9 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/network', networkRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/profiles', profileRoutes);
+app.use('/api/resumes', resumeRoutes);
+app.use('/api/interviews', interviewRoutes);
 
 // 404 Handler
 app.use((req, res) => {

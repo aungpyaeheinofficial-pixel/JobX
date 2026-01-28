@@ -26,11 +26,13 @@ router.get('/', optionalAuth, async (req, res) => {
         c.logo_url as company_logo,
         c.industry as company_industry,
         u.name as posted_by_name,
-        CASE WHEN a.id IS NOT NULL THEN true ELSE false END as has_applied
+        CASE WHEN a.id IS NOT NULL THEN true ELSE false END as has_applied,
+        CASE WHEN s.id IS NOT NULL THEN true ELSE false END as is_saved
       FROM jobs j
       INNER JOIN companies c ON j.company_id = c.id
       LEFT JOIN users u ON j.posted_by = u.id
       LEFT JOIN applications a ON j.id = a.job_id AND a.applicant_id = $1
+      LEFT JOIN saved_jobs s ON j.id = s.job_id AND s.user_id = $1
       WHERE j.status = 'active'
     `;
     
@@ -102,6 +104,105 @@ router.get('/', optionalAuth, async (req, res) => {
   }
 });
 
+// Get my saved jobs (must be before /:id)
+router.get('/saved', authenticate, async (req, res) => {
+  try {
+    const { page = 1, limit = 20 } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const result = await query(
+      `SELECT j.*, c.company_name, c.logo_url as company_logo, c.industry as company_industry,
+        s.saved_at,
+        CASE WHEN a.id IS NOT NULL THEN true ELSE false END as has_applied
+       FROM saved_jobs s
+       INNER JOIN jobs j ON s.job_id = j.id
+       INNER JOIN companies c ON j.company_id = c.id
+       LEFT JOIN applications a ON j.id = a.job_id AND a.applicant_id = $1
+       WHERE s.user_id = $2 AND j.status = 'active'
+       ORDER BY s.saved_at DESC LIMIT $3 OFFSET $4`,
+      [req.user.id, req.user.id, parseInt(limit), offset]
+    );
+    const count = await query('SELECT COUNT(*) FROM saved_jobs WHERE user_id = $1', [req.user.id]);
+    res.json({
+      jobs: result.rows,
+      pagination: { page: parseInt(page), limit: parseInt(limit), total: parseInt(count.rows[0].count) },
+    });
+  } catch (error) {
+    console.error('Get saved jobs error:', error);
+    res.status(500).json({ error: 'Failed to fetch saved jobs' });
+  }
+});
+
+// Get my job alerts (must be before /:id)
+router.get('/alerts', authenticate, async (req, res) => {
+  try {
+    const result = await query(
+      'SELECT * FROM job_alerts WHERE user_id = $1 ORDER BY created_at DESC',
+      [req.user.id]
+    );
+    res.json({ alerts: result.rows });
+  } catch (error) {
+    console.error('Get job alerts error:', error);
+    res.status(500).json({ error: 'Failed to fetch job alerts' });
+  }
+});
+
+router.post('/alerts', authenticate, async (req, res) => {
+  try {
+    const { keywords, location, job_types, frequency = 'daily' } = req.body;
+    const result = await query(
+      `INSERT INTO job_alerts (user_id, keywords, location, job_types, frequency)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [req.user.id, JSON.stringify(keywords || []), location || null, JSON.stringify(job_types || []), frequency]
+    );
+    res.status(201).json({ alert: result.rows[0] });
+  } catch (error) {
+    console.error('Create job alert error:', error);
+    res.status(500).json({ error: 'Failed to create job alert' });
+  }
+});
+
+router.put('/alerts/:alertId', authenticate, async (req, res) => {
+  try {
+    const { alertId } = req.params;
+    const { keywords, location, job_types, frequency, is_active } = req.body;
+    const updates = [];
+    const values = [];
+    let n = 1;
+    if (keywords !== undefined) { updates.push(`keywords = $${n++}`); values.push(JSON.stringify(keywords)); }
+    if (location !== undefined) { updates.push(`location = $${n++}`); values.push(location); }
+    if (job_types !== undefined) { updates.push(`job_types = $${n++}`); values.push(JSON.stringify(job_types)); }
+    if (frequency !== undefined) { updates.push(`frequency = $${n++}`); values.push(frequency); }
+    if (is_active !== undefined) { updates.push(`is_active = $${n++}`); values.push(is_active); }
+    if (updates.length === 0) return res.status(400).json({ error: 'No fields to update' });
+    values.push(alertId, req.user.id);
+    const result = await query(
+      `UPDATE job_alerts SET ${updates.join(', ')}, updated_at = NOW()
+       WHERE id = $${n} AND user_id = $${n + 1} RETURNING *`,
+      values
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Alert not found' });
+    res.json({ alert: result.rows[0] });
+  } catch (error) {
+    console.error('Update job alert error:', error);
+    res.status(500).json({ error: 'Failed to update job alert' });
+  }
+});
+
+router.delete('/alerts/:alertId', authenticate, async (req, res) => {
+  try {
+    const { alertId } = req.params;
+    const result = await query(
+      'DELETE FROM job_alerts WHERE id = $1 AND user_id = $2 RETURNING id',
+      [alertId, req.user.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Alert not found' });
+    res.json({ message: 'Alert deleted' });
+  } catch (error) {
+    console.error('Delete job alert error:', error);
+    res.status(500).json({ error: 'Failed to delete job alert' });
+  }
+});
+
 // Get single job
 router.get('/:id', optionalAuth, async (req, res) => {
   try {
@@ -129,13 +230,66 @@ router.get('/:id', optionalAuth, async (req, res) => {
       return res.status(404).json({ error: 'Job not found' });
     }
 
-    // Increment view count
-    await query('UPDATE jobs SET views_count = views_count + 1 WHERE id = $1', [id]);
+    // Record job view when user is logged in (unique per user; bump count only on first view)
+    if (req.user) {
+      const insert = await query(
+        `INSERT INTO job_views (job_id, user_id) VALUES ($1, $2)
+         ON CONFLICT (job_id, user_id) DO NOTHING RETURNING id`,
+        [id, req.user.id]
+      );
+      if (insert.rows.length > 0) {
+        await query('UPDATE jobs SET views_count = views_count + 1 WHERE id = $1', [id]);
+      }
+    } else {
+      await query('UPDATE jobs SET views_count = views_count + 1 WHERE id = $1', [id]);
+    }
 
-    res.json({ job: result.rows[0] });
+    const job = result.rows[0];
+    if (req.user) {
+      const saved = await query(
+        'SELECT id FROM saved_jobs WHERE job_id = $1 AND user_id = $2',
+        [id, req.user.id]
+      );
+      job.is_saved = saved.rows.length > 0;
+    } else {
+      job.is_saved = false;
+    }
+    res.json({ job });
   } catch (error) {
     console.error('Get job error:', error);
     res.status(500).json({ error: 'Failed to fetch job' });
+  }
+});
+
+// Save job (add to saved_jobs)
+router.post('/:id/save', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const job = await query('SELECT id FROM jobs WHERE id = $1 AND status = $2', [id, 'active']);
+    if (job.rows.length === 0) return res.status(404).json({ error: 'Job not found' });
+    await query(
+      'INSERT INTO saved_jobs (job_id, user_id) VALUES ($1, $2) ON CONFLICT (job_id, user_id) DO NOTHING',
+      [id, req.user.id]
+    );
+    res.json({ saved: true });
+  } catch (error) {
+    console.error('Save job error:', error);
+    res.status(500).json({ error: 'Failed to save job' });
+  }
+});
+
+// Unsave job
+router.delete('/:id/save', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await query(
+      'DELETE FROM saved_jobs WHERE job_id = $1 AND user_id = $2 RETURNING id',
+      [id, req.user.id]
+    );
+    res.json({ saved: false, removed: result.rows.length > 0 });
+  } catch (error) {
+    console.error('Unsave job error:', error);
+    res.status(500).json({ error: 'Failed to unsave job' });
   }
 });
 

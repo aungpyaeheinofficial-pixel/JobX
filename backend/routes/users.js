@@ -5,10 +5,11 @@ import { authenticate, optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Get user profile
+// Get user profile (optionally include extended profile from user_profiles)
 router.get('/:id', optionalAuth, async (req, res) => {
   try {
     const { id } = req.params;
+    const extended = req.query.extended === '1' || req.query.extended === 'true';
 
     const result = await query(
       `SELECT 
@@ -22,7 +23,15 @@ router.get('/:id', optionalAuth, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({ user: result.rows[0] });
+    const user = result.rows[0];
+    if (extended) {
+      const profileResult = await query(
+        'SELECT * FROM user_profiles WHERE user_id = $1',
+        [id]
+      );
+      return res.json({ user, profile: profileResult.rows[0] || null });
+    }
+    res.json({ user });
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ error: 'Failed to fetch user' });

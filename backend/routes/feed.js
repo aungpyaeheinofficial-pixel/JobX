@@ -178,4 +178,44 @@ router.get('/:id/comments', async (req, res) => {
   }
 });
 
+// Share post (records in post_shares, increments shares_count)
+router.post('/:id/share', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const existing = await query(
+      'SELECT id FROM post_shares WHERE post_id = $1 AND user_id = $2',
+      [id, req.user.id]
+    );
+    if (existing.rows.length > 0) {
+      return res.json({ shared: true, already: true });
+    }
+    await query(
+      'INSERT INTO post_shares (post_id, user_id) VALUES ($1, $2) ON CONFLICT (post_id, user_id) DO NOTHING',
+      [id, req.user.id]
+    );
+    await query('UPDATE feed_posts SET shares_count = COALESCE(shares_count, 0) + 1 WHERE id = $1', [id]);
+    res.json({ shared: true });
+  } catch (error) {
+    console.error('Share post error:', error);
+    res.status(500).json({ error: 'Failed to share post' });
+  }
+});
+
+// Record post view (idempotent per user)
+router.post('/:id/view', optionalAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!req.user) return res.json({ viewed: false });
+    await query(
+      `INSERT INTO post_views (post_id, user_id) VALUES ($1, $2)
+       ON CONFLICT (post_id, user_id) DO NOTHING`,
+      [id, req.user.id]
+    );
+    res.json({ viewed: true });
+  } catch (error) {
+    console.error('Post view error:', error);
+    res.status(500).json({ error: 'Failed to record view' });
+  }
+});
+
 export default router;
