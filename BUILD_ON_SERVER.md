@@ -39,10 +39,12 @@ npm install
 npm run build
 ```
 
-### Step 4: Copy Build to Frontend Directory
+### Step 4: Copy Build to Frontend Directory (required)
+
+**If you only run `npm run build` but don't copy the new `dist/` to where nginx serves from, the site will still show old CSS/JS (e.g. theme colors won't update).**
 
 ```bash
-# Copy dist contents to frontend directory
+# Copy dist contents to frontend directory (adjust path if yours differs)
 sudo cp -r dist/* /var/www/jobx-frontend/
 
 # Set permissions
@@ -51,8 +53,8 @@ sudo chown -R www-data:www-data /var/www/jobx-frontend
 
 ### Step 5: Verify
 
-1. Clear browser cache (Ctrl+Shift+R)
-2. Refresh page
+1. **Hard refresh** the browser (Ctrl+Shift+R or Cmd+Shift+R) so cached CSS/JS are cleared.
+2. Refresh the page.
 3. Check console - should show:
    ```
    Current API URL: http://167.172.90.182:5560/api
