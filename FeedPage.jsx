@@ -176,14 +176,14 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             {/* Avatar */}
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white font-semibold text-sm shadow-md">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white font-semibold text-sm shadow-md">
               {post.author.initials}
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-gray-900">{post.author.name}</span>
                 {post.author.isVerified && (
-                  <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                  <div className="w-4 h-4 bg-brand rounded-full flex items-center justify-center">
                     <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
@@ -274,7 +274,7 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
           onClick={() => onBookmark(post.id)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
             post.isBookmarked
-              ? 'text-blue-500 bg-blue-50'
+              ? 'text-brand bg-brand/10'
               : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
@@ -293,7 +293,7 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
           >
             <div className="p-4 bg-gray-50">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white text-xs font-semibold">
                   U
                 </div>
                 <div className="flex-1 relative">
@@ -359,7 +359,7 @@ const PostComposer = ({ userData, onPost }) => {
   return (
     <div
       className={`bg-white rounded-2xl border-2 transition-colors ${
-        isDragging ? 'border-blue-400 bg-blue-50' : 'border-gray-200'
+        isDragging ? 'border-brand bg-brand/10' : 'border-gray-200'
       }`}
       onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
       onDragLeave={() => setIsDragging(false)}
@@ -368,7 +368,7 @@ const PostComposer = ({ userData, onPost }) => {
       {/* Header */}
       <div className="p-5 pb-0">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-semibold shadow-md">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white font-semibold shadow-md">
             {userData?.name?.charAt(0) || 'U'}
           </div>
           <div className="flex-1">
@@ -439,9 +439,9 @@ const PostComposer = ({ userData, onPost }) => {
 
         {/* Drag hint */}
         {isDragging && (
-          <div className="mt-3 p-6 border-2 border-dashed border-blue-300 rounded-xl bg-blue-50 text-center">
-            <Image className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-            <p className="text-blue-600 font-medium">Drop your image here</p>
+          <div className="mt-3 p-6 border-2 border-dashed border-brand rounded-xl bg-brand/10 text-center">
+            <Image className="w-8 h-8 text-brand mx-auto mb-2" />
+            <p className="text-brand font-medium">Drop your image here</p>
           </div>
         )}
       </div>
@@ -468,7 +468,7 @@ const PostComposer = ({ userData, onPost }) => {
           disabled={!content.trim()}
           className={`px-6 py-2.5 rounded-full font-semibold text-sm transition-all ${
             content.trim()
-              ? 'bg-black text-white hover:bg-gray-800'
+              ? 'bg-brand text-white hover:bg-brand-dark'
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
         >
@@ -585,7 +585,7 @@ const ExploreCommunities = ({ selectedCommunity, onSelectCommunity }) => {
             onClick={() => onSelectCommunity(community.id)}
             className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left ${
               selectedCommunity === community.id
-                ? 'bg-gray-900 text-white'
+                ? 'bg-black text-white'
                 : 'hover:bg-gray-50 text-gray-700'
             }`}
           >
@@ -613,12 +613,12 @@ const ProfileCard = ({ userData, onNavigate }) => {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
       {/* Cover */}
-      <div className="h-16 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-900" />
+      <div className="h-16 bg-gradient-to-r from-black via-gray-800 to-black" />
       
       {/* Content */}
       <div className="px-5 pb-5">
         <div className="-mt-8">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold border-4 border-white shadow-lg">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white text-xl font-bold border-4 border-white shadow-lg">
             {userData?.name?.charAt(0) || 'U'}
           </div>
         </div>
@@ -909,7 +909,7 @@ const FeedPage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages }) 
                   onClick={() => setFilter(item.id)}
                   className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                     filter === item.id
-                      ? 'bg-black text-white'
+                      ? 'bg-brand text-white'
                       : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
                   }`}
                 >

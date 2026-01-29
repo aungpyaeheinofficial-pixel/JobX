@@ -69,7 +69,7 @@ export const EnhancedLiquidNav = ({ activeTab = 'dashboard', onNavigate, userDat
                     layoutId="activeTab"
                     className={`absolute inset-0 rounded-[14px] shadow-lg ${
                       item.isAction
-                        ? 'bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 shadow-blue-500/20'
+                        ? 'bg-brand shadow-brand'
                         : 'bg-gradient-to-br from-gray-900 via-gray-800 to-black shadow-black/20'
                     }`}
                     transition={{
@@ -87,7 +87,7 @@ export const EnhancedLiquidNav = ({ activeTab = 'dashboard', onNavigate, userDat
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     className={`absolute inset-0 backdrop-blur-sm rounded-[14px] ${
-                      item.isAction ? 'bg-blue-50/80' : 'bg-gray-100/80'
+                      item.isAction ? 'bg-brand/10' : 'bg-gray-100/80'
                     }`}
                     transition={{ duration: 0.15 }}
                   />
@@ -97,13 +97,13 @@ export const EnhancedLiquidNav = ({ activeTab = 'dashboard', onNavigate, userDat
                 <div className="relative flex items-center gap-2.5">
                   <Icon
                     className={`w-[18px] h-[18px] transition-colors duration-200 ${
-                      isActive ? 'text-white' : item.isAction ? 'text-blue-600' : 'text-gray-600'
+                      isActive ? 'text-white' : item.isAction ? 'text-brand' : 'text-gray-600'
                     }`}
                     strokeWidth={2.5}
                   />
                   <span
                     className={`text-[15px] font-semibold transition-colors duration-200 ${
-                      isActive ? 'text-white' : item.isAction ? 'text-blue-600' : 'text-gray-700'
+                      isActive ? 'text-white' : item.isAction ? 'text-brand' : 'text-gray-700'
                     }`}
                   >
                     {item.label}
@@ -240,7 +240,7 @@ export const HiringModeNav = ({ activeTab = 'employer', onNavigate, userData, us
                 {isActive && (
                   <motion.div
                     layoutId="activeTabHiring"
-                    className="absolute inset-0 rounded-[14px] shadow-lg bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 shadow-blue-500/20"
+                    className="absolute inset-0 rounded-[14px] shadow-lg bg-brand shadow-brand"
                     transition={{
                       type: 'spring',
                       stiffness: 500,
@@ -255,7 +255,7 @@ export const HiringModeNav = ({ activeTab = 'employer', onNavigate, userData, us
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="absolute inset-0 backdrop-blur-sm rounded-[14px] bg-blue-50/80"
+                    className="absolute inset-0 backdrop-blur-sm rounded-[14px] bg-brand/10"
                     transition={{ duration: 0.15 }}
                   />
                 )}
@@ -264,13 +264,13 @@ export const HiringModeNav = ({ activeTab = 'employer', onNavigate, userData, us
                 <div className="relative flex items-center gap-2.5">
                   <Icon
                     className={`w-[18px] h-[18px] transition-colors duration-200 ${
-                      isActive ? 'text-white' : 'text-blue-600'
+                      isActive ? 'text-white' : 'text-brand'
                     }`}
                     strokeWidth={2.5}
                   />
                   <span
                     className={`text-[15px] font-semibold transition-colors duration-200 ${
-                      isActive ? 'text-white' : 'text-blue-600'
+                      isActive ? 'text-white' : 'text-brand'
                     }`}
                   >
                     {item.label}
@@ -283,7 +283,7 @@ export const HiringModeNav = ({ activeTab = 'employer', onNavigate, userData, us
           {/* Post a Job CTA - Primary action in Hiring Mode */}
           <button
             onClick={() => onNavigate('post-opportunity')}
-            className="relative z-10 ml-2 px-5 py-2.5 rounded-[14px] bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+            className="relative z-10 ml-2 px-5 py-2.5 rounded-[14px] bg-brand text-white font-semibold shadow-brand hover:bg-brand-dark hover:shadow-brand-lg transition-all duration-200 flex items-center gap-2"
           >
             <Plus className="w-[18px] h-[18px]" strokeWidth={2.5} />
             <span className="text-[15px]">Post a Job</span>
@@ -407,7 +407,7 @@ export const EnhancedAvatar = ({ userData, userRole, onClick, onNavigate, onLogo
         onClick={() => setShowMenu(!showMenu)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-purple-500/30 border-2 border-white/50 backdrop-blur-xl"
+        className="w-10 h-10 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-brand/30 border-2 border-white/50 backdrop-blur-xl"
       >
         {userData?.name?.charAt(0) || 'U'}
       </motion.button>
@@ -435,7 +435,7 @@ export const EnhancedAvatar = ({ userData, userRole, onClick, onNavigate, onLogo
                 className="w-full px-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white font-bold text-sm">
                     {userData?.name?.charAt(0) || 'U'}
                   </div>
                   <div>
@@ -470,9 +470,9 @@ export const EnhancedAvatar = ({ userData, userRole, onClick, onNavigate, onLogo
                   hasCompany ? (
                     <button
                       onClick={() => handleMenuClick('company-profile')}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all hover:bg-blue-50 text-gray-700 mb-1"
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all hover:bg-brand/10 text-gray-700 mb-1"
                     >
-                      <Briefcase className="w-5 h-5 text-blue-600" />
+                      <Briefcase className="w-5 h-5 text-brand" />
                       <div className="flex-1 text-left">
                         <span className="text-sm font-medium">Employer Dashboard</span>
                         <div className="text-xs text-gray-500">{userData?.companyData?.companyName || 'Your Company'}</div>
@@ -481,12 +481,12 @@ export const EnhancedAvatar = ({ userData, userRole, onClick, onNavigate, onLogo
                   ) : (
                     <button
                       onClick={() => handleMenuClick('switch-to-employer')}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all hover:bg-blue-50 text-blue-600 border border-blue-200 mb-2"
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all hover:bg-brand/10 text-brand border border-brand/30 mb-2"
                     >
                       <Briefcase className="w-5 h-5" />
                       <div className="flex-1 text-left">
                         <span className="text-sm font-semibold">Switch to Hiring</span>
-                        <div className="text-xs text-blue-500">Post jobs & hire talent</div>
+                        <div className="text-xs text-brand">Post jobs & hire talent</div>
                       </div>
                     </button>
                   )
@@ -539,7 +539,7 @@ const LegacyEnhancedAvatar = ({ userData, onClick, onLogout, onSettings }) => {
         onClick={() => setShowMenu(!showMenu)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-purple-500/30 border-2 border-white/50 backdrop-blur-xl"
+        className="w-10 h-10 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-brand/30 border-2 border-white/50 backdrop-blur-xl"
       >
         {userData?.name?.charAt(0) || 'U'}
       </motion.button>
@@ -619,11 +619,12 @@ export const EnhancedHeader = ({
             <motion.div
               whileHover={{ scale: 1.05, rotate: 5 }}
               whileTap={{ scale: 0.95 }}
-              className="w-11 h-11 bg-gradient-to-br from-gray-900 via-gray-800 to-black rounded-[14px] flex items-center justify-center shadow-lg shadow-black/20 cursor-pointer"
+              onClick={() => onNavigate('feed')}
+              className="w-11 h-11 bg-brand rounded-[14px] flex items-center justify-center shadow-brand cursor-pointer"
             >
               <span className="text-white font-bold text-lg">J</span>
             </motion.div>
-            <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+            <span className="text-xl font-bold text-black">
               JobX
             </span>
           </div>
@@ -674,7 +675,7 @@ export const HiringModeHeader = ({
   onSettings,
 }) => {
   return (
-    <header className="bg-gradient-to-r from-blue-50 to-indigo-50 backdrop-blur-2xl border-b border-blue-200/60 sticky top-0 z-30 shadow-sm">
+    <header className="bg-white/90 backdrop-blur-2xl border-b border-black/10 sticky top-0 z-30 shadow-sm">
       <div className="max-w-[1920px] mx-auto px-6 py-4">
         <div className="flex items-center justify-between gap-6">
           {/* Logo with Hiring Badge */}
@@ -683,17 +684,17 @@ export const HiringModeHeader = ({
               whileHover={{ scale: 1.05, rotate: 5 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => onNavigate('feed')}
-              className="w-11 h-11 bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 rounded-[14px] flex items-center justify-center shadow-lg shadow-blue-500/30 cursor-pointer"
+              className="w-11 h-11 bg-brand rounded-[14px] flex items-center justify-center shadow-brand cursor-pointer"
             >
               <span className="text-white font-bold text-lg">J</span>
             </motion.div>
             <div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-900 to-indigo-700 bg-clip-text text-transparent">
+              <span className="text-xl font-bold text-black">
                 JobX
               </span>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-semibold text-blue-600">Hiring Mode</span>
-                <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
+                <span className="text-xs font-semibold text-brand">Hiring Mode</span>
+                <div className="w-1.5 h-1.5 bg-brand rounded-full animate-pulse" />
               </div>
             </div>
           </div>
