@@ -31,9 +31,9 @@ body {
   color: var(--color-black-soft);
 }
 
-/* Default dark theme (when html has .dark) */
+/* Default dark theme (when html has .dark) - subtle brand warmth */
 .dark body {
-  background: #0b0b0b;
+  background: linear-gradient(180deg, #0d0a09 0%, #0b0b0b 50%, #0d0a09 100%);
   color: #f3f4f6;
 }
 

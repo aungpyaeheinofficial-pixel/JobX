@@ -169,7 +169,7 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
     <motion.article
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden micro-card"
+      className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-brand/20 overflow-hidden micro-card"
     >
       {/* Author Header */}
       <div className="p-5 pb-0">
@@ -249,8 +249,8 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
           onClick={() => onLike(post.id)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
             post.isLiked
-              ? 'text-red-500 bg-red-50'
-              : 'text-gray-600 hover:bg-gray-100'
+              ? 'text-white bg-brand hover:bg-brand-dark'
+              : 'text-gray-600 dark:text-gray-300 hover:bg-brand/10 hover:text-brand dark:hover:text-brand'
           }`}
         >
           <Heart className={`w-5 h-5 ${post.isLiked ? 'fill-current' : ''}`} />
@@ -258,14 +258,14 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
         </button>
         <button
           onClick={() => setShowComments(!showComments)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-brand/10 hover:text-brand dark:hover:text-brand transition-all"
         >
           <MessageCircle className="w-5 h-5" />
           <span className="font-medium">Comment</span>
         </button>
         <button
           onClick={() => onShare(post.id)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-brand/10 hover:text-brand dark:hover:text-brand transition-all"
         >
           <Share2 className="w-5 h-5" />
           <span className="font-medium">Share</span>
@@ -274,8 +274,8 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
           onClick={() => onBookmark(post.id)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
             post.isBookmarked
-              ? 'text-brand bg-brand/10'
-              : 'text-gray-600 hover:bg-gray-100'
+              ? 'text-brand bg-brand/20'
+              : 'text-gray-600 dark:text-gray-300 hover:bg-brand/10 hover:text-brand dark:hover:text-brand'
           }`}
         >
           <Bookmark className={`w-5 h-5 ${post.isBookmarked ? 'fill-current' : ''}`} />
@@ -359,7 +359,7 @@ const PostComposer = ({ userData, onPost }) => {
   return (
     <div
       className={`bg-white dark:bg-gray-900 rounded-2xl border-2 transition-colors ${
-        isDragging ? 'border-brand bg-brand/10' : 'border-gray-200 dark:border-white/10'
+        isDragging ? 'border-brand bg-brand/10' : 'border-gray-200 dark:border-brand/30'
       }`}
       onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
       onDragLeave={() => setIsDragging(false)}
@@ -490,9 +490,9 @@ const TrendingTopics = () => {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 p-5">
-      <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-        <TrendingUp className="w-5 h-5 text-gray-400" />
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-brand/20 p-5">
+      <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <TrendingUp className="w-5 h-5 text-brand" />
         Trending in Myanmar
       </h3>
       <div className="space-y-3">
@@ -522,10 +522,10 @@ const SuggestedConnections = ({ onNavigate }) => {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 p-5">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-brand/20 p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-          <Users className="w-5 h-5 text-gray-400" />
+        <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <Users className="w-5 h-5 text-brand" />
           People to Follow
         </h3>
         <button
@@ -573,9 +573,9 @@ const ExploreCommunities = ({ selectedCommunity, onSelectCommunity }) => {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 p-5">
-      <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-        <Users className="w-5 h-5 text-gray-400" />
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-brand/20 p-5">
+      <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <Users className="w-5 h-5 text-brand" />
         Explore Communities
       </h3>
       <div className="space-y-2">
@@ -585,8 +585,8 @@ const ExploreCommunities = ({ selectedCommunity, onSelectCommunity }) => {
             onClick={() => onSelectCommunity(community.id)}
             className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left ${
               selectedCommunity === community.id
-                ? 'bg-black text-white'
-                : 'hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-200'
+                ? 'bg-brand text-white'
+                : 'hover:bg-brand/10 hover:text-brand dark:hover:text-brand text-gray-700 dark:text-gray-200'
             }`}
           >
             <span className="text-lg">{community.icon}</span>
@@ -611,9 +611,9 @@ const ExploreCommunities = ({ selectedCommunity, onSelectCommunity }) => {
 // Profile Card Component
 const ProfileCard = ({ userData, onNavigate }) => {
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-brand/20 overflow-hidden">
       {/* Cover */}
-      <div className="h-16 bg-gradient-to-r from-black via-gray-800 to-black" />
+      <div className="h-16 bg-gradient-to-r from-brand-dark via-brand to-brand-light" />
       
       {/* Content */}
       <div className="px-5 pb-5">
@@ -641,7 +641,7 @@ const ProfileCard = ({ userData, onNavigate }) => {
 
         <button
           onClick={() => onNavigate('profile')}
-          className="w-full mt-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+          className="w-full mt-4 py-2.5 text-sm font-medium text-white bg-brand rounded-xl hover:bg-brand-dark transition-colors"
         >
           View Profile
         </button>
@@ -844,7 +844,7 @@ const FeedPage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages }) 
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a]">
       <EnhancedHeader
         userData={userData}
         userRole={userRole}

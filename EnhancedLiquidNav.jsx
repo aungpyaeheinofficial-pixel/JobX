@@ -49,7 +49,7 @@ export const EnhancedLiquidNav = ({ activeTab = 'dashboard', onNavigate, userDat
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className="hidden md:flex items-center gap-1 bg-white/70 dark:bg-black/40 backdrop-blur-2xl p-1.5 rounded-[20px] border border-gray-200/60 dark:border-white/10 shadow-lg shadow-black/5">
+      <nav className="hidden md:flex items-center gap-1 bg-white/70 dark:bg-black/40 backdrop-blur-2xl p-1.5 rounded-[20px] border border-gray-200/60 dark:border-brand/20 shadow-lg shadow-black/5">
         <div className="relative flex items-center gap-1">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -70,7 +70,7 @@ export const EnhancedLiquidNav = ({ activeTab = 'dashboard', onNavigate, userDat
                     className={`absolute inset-0 rounded-[14px] shadow-lg ${
                       item.isAction
                         ? 'bg-brand shadow-brand'
-                        : 'bg-gradient-to-br from-gray-900 via-gray-800 to-black shadow-black/20'
+                        : 'bg-brand shadow-brand'
                     }`}
                     transition={{
                       type: 'spring',
@@ -87,7 +87,7 @@ export const EnhancedLiquidNav = ({ activeTab = 'dashboard', onNavigate, userDat
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     className={`absolute inset-0 backdrop-blur-sm rounded-[14px] ${
-                      item.isAction ? 'bg-brand/10' : 'bg-gray-100/80 dark:bg-white/5'
+                      item.isAction ? 'bg-brand/10' : 'bg-gray-100/80 dark:bg-brand/10'
                     }`}
                     transition={{ duration: 0.15 }}
                   />
