@@ -85,12 +85,12 @@ const RoleSelection = ({ onRoleSelect }) => {
                 onClick={() => setSelectedRole(role.id)}
                 className={`relative p-8 rounded-3xl cursor-pointer transition-all ${
                   isSelected
-                    ? 'bg-white border-2 border-blue-500 shadow-[0_8px_32px_rgba(59,130,246,0.15)]'
+                    ? 'bg-white border-2 border-brand shadow-brand'
                     : 'bg-white border-2 border-gray-200 hover:border-gray-300 hover:shadow-lg'
                 }`}
               >
                 {role.isPrimary && !isSelected && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-blue-600 text-white text-sm font-semibold rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-brand text-white text-sm font-semibold rounded-full">
                     Most Popular
                   </div>
                 )}
@@ -99,7 +99,7 @@ const RoleSelection = ({ onRoleSelect }) => {
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-3 right-6 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-lg"
+                    className="absolute -top-3 right-6 w-8 h-8 bg-brand rounded-full flex items-center justify-center shadow-lg"
                   >
                     <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -108,9 +108,9 @@ const RoleSelection = ({ onRoleSelect }) => {
                 )}
 
                 <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 ${
-                  isSelected ? 'bg-blue-100' : 'bg-gray-100'
+                  isSelected ? 'bg-brand/10' : 'bg-gray-100'
                 }`}>
-                  <Icon className={`w-8 h-8 ${isSelected ? 'text-blue-600' : 'text-gray-600'}`} />
+                  <Icon className={`w-8 h-8 ${isSelected ? 'text-brand' : 'text-gray-600'}`} />
                 </div>
 
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -123,7 +123,7 @@ const RoleSelection = ({ onRoleSelect }) => {
                 <ul className="space-y-3">
                   {role.features.map((feature, idx) => (
                     <li key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                      <div className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-blue-500' : 'bg-gray-400'}`} />
+                      <div className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-brand' : 'bg-gray-400'}`} />
                       {feature}
                     </li>
                   ))}
@@ -137,7 +137,7 @@ const RoleSelection = ({ onRoleSelect }) => {
         <div className="text-center">
           <button
             onClick={handleContinue}
-            className="px-12 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-semibold text-lg hover:shadow-2xl hover:scale-105 transition-all flex items-center gap-2 mx-auto"
+            className="px-12 py-4 bg-brand text-white rounded-full font-semibold text-lg hover:bg-brand-dark hover:shadow-brand hover:scale-105 transition-all flex items-center gap-2 mx-auto"
           >
             Continue
             <ArrowRight className="w-5 h-5" />

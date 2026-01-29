@@ -75,7 +75,7 @@ export function AppleLiquidNavItem({ label, isActive, onClick }) {
       <motion.span
         className="relative z-10 text-sm font-medium"
         animate={{
-          color: isActive ? '#111827' : isHovered ? '#374151' : '#9CA3AF',
+          color: isActive ? '#FC5114' : isHovered ? '#374151' : '#9CA3AF',
         }}
         transition={{ duration: 0.2 }}
       >
@@ -102,8 +102,8 @@ export function AppleLiquidButton({ label, onClick, icon: Icon }) {
         damping: 30,
       }}
     >
-      {/* Base black background */}
-      <div className="absolute inset-0 bg-black rounded-full" />
+      {/* Base brand background */}
+      <div className="absolute inset-0 bg-brand rounded-full" />
 
       {/* Liquid hover gradient */}
       <motion.div
@@ -119,7 +119,7 @@ export function AppleLiquidButton({ label, onClick, icon: Icon }) {
           damping: 25,
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-700 via-gray-800 to-black rounded-full" />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-light via-brand to-brand-dark rounded-full" />
 
         {/* Animated shine */}
         <motion.div
@@ -202,8 +202,8 @@ export function AppleLiquidAvatar({ userData, onClick }) {
         damping: 25,
       }}
     >
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-500 via-purple-600 to-purple-700" />
+      {/* Gradient background - brand + black */}
+      <div className="absolute inset-0 bg-gradient-to-br from-brand-light via-brand to-brand-dark" />
 
       {/* Animated gradient overlay */}
       <motion.div

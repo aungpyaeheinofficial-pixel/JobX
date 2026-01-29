@@ -39,14 +39,14 @@ const EnhancedInput = ({
   const getBorderColor = () => {
     if (showError) return 'border-red-500 ring-2 ring-red-100';
     if (showSuccess) return 'border-green-500 ring-2 ring-green-100';
-    if (isFocused) return 'border-blue-500 ring-2 ring-blue-100';
+    if (isFocused) return 'border-brand ring-2 ring-brand/10';
     return 'border-gray-200';
   };
 
   const getIconColor = () => {
     if (showError) return 'text-red-500';
     if (showSuccess) return 'text-green-500';
-    if (isFocused) return 'text-blue-600';
+    if (isFocused) return 'text-brand';
     return 'text-gray-400';
   };
 
@@ -206,7 +206,7 @@ export const EnhancedTextarea = ({
   const getBorderColor = () => {
     if (showError) return 'border-red-500 ring-2 ring-red-100';
     if (showSuccess) return 'border-green-500 ring-2 ring-green-100';
-    if (isFocused) return 'border-blue-500 ring-2 ring-blue-100';
+    if (isFocused) return 'border-brand ring-2 ring-brand/10';
     return 'border-gray-200';
   };
 

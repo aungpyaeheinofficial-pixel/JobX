@@ -22,11 +22,11 @@ const EnhancedButton = ({
 }) => {
   const variants = {
     primary: {
-      bg: 'bg-gradient-to-r from-blue-600 to-indigo-600',
+      bg: 'bg-brand',
       text: 'text-white',
-      hover: 'hover:from-blue-700 hover:to-indigo-700',
-      shadow: 'shadow-lg shadow-blue-500/30',
-      hoverShadow: 'hover:shadow-xl hover:shadow-blue-500/40',
+      hover: 'hover:bg-brand-dark',
+      shadow: 'shadow-brand',
+      hoverShadow: 'hover:shadow-brand-lg',
     },
     secondary: {
       bg: 'bg-white border-2 border-gray-300',
@@ -57,9 +57,9 @@ const EnhancedButton = ({
       hoverShadow: '',
     },
     outline: {
-      bg: 'bg-transparent border-2 border-blue-600',
-      text: 'text-blue-600',
-      hover: 'hover:bg-blue-50',
+      bg: 'bg-transparent border-2 border-brand',
+      text: 'text-brand',
+      hover: 'hover:bg-brand/10',
       shadow: '',
       hoverShadow: 'hover:shadow-md',
     },
@@ -125,7 +125,7 @@ export const IconButton = ({
   ...props
 }) => {
   const variants = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700',
+    primary: 'bg-brand text-white hover:bg-brand-dark',
     secondary: 'bg-gray-200 text-gray-700 hover:bg-gray-300',
     ghost: 'bg-transparent text-gray-600 hover:bg-gray-100',
     danger: 'bg-red-600 text-white hover:bg-red-700',
@@ -185,7 +185,7 @@ export const FAB = ({
   };
 
   const variants = {
-    primary: 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-500/50',
+    primary: 'bg-brand shadow-brand/50 hover:bg-brand-dark',
     success: 'bg-gradient-to-r from-green-600 to-emerald-600 shadow-green-500/50',
   };
 

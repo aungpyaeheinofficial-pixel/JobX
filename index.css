@@ -4,8 +4,17 @@
 
 /* ============================================
    JOBX DESIGN SYSTEM
-   Apple Editorial Minimalism + Micro-Interactions
+   Theme: #FC5114 (Brand) + Black
    ============================================ */
+
+:root {
+  --color-brand: #FC5114;
+  --color-brand-light: #fd6d3d;
+  --color-brand-dark: #d9450f;
+  --color-brand-muted: rgba(252, 81, 20, 0.1);
+  --color-black: #000000;
+  --color-black-soft: #1a1a1a;
+}
 
 * {
   margin: 0;
@@ -19,7 +28,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #fafafa;
-  color: #1a1a1a;
+  color: var(--color-black-soft);
 }
 
 html {
@@ -48,10 +57,10 @@ html {
   background: linear-gradient(
     135deg,
     #ffffff 0%,
-    #f8fafc 20%,
-    #f1f5f9 40%,
-    #ede9fe 60%,
-    #fdf4ff 80%,
+    #fef7f5 20%,
+    #fef3ef 40%,
+    rgba(252, 81, 20, 0.04) 60%,
+    #fef7f5 80%,
     #ffffff 100%
   );
   background-size: 300% 300%;
@@ -141,14 +150,14 @@ html {
 .particle-field::before {
   top: -100px;
   left: -100px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(252, 81, 20, 0.12) 0%, transparent 70%);
   animation: drift 30s ease-in-out infinite;
 }
 
 .particle-field::after {
   bottom: -100px;
   right: -100px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.06) 0%, transparent 70%);
   animation: drift 25s ease-in-out infinite reverse;
 }
 
@@ -200,7 +209,7 @@ html {
   position: absolute;
   inset: -2px;
   border-radius: inherit;
-  background: linear-gradient(135deg, #8b5cf6, #3b82f6, #8b5cf6);
+  background: linear-gradient(135deg, #FC5114, #d9450f, #FC5114);
   opacity: 0;
   z-index: -1;
   transition: opacity 0.3s ease;
@@ -316,7 +325,7 @@ html {
   position: absolute;
   width: 200px;
   height: 200px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(252, 81, 20, 0.1) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   transform: translate(-50%, -50%);
@@ -372,7 +381,7 @@ a, button, input, textarea, select {
 
 /* Focus States - Apple Style */
 *:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid #FC5114;
   outline-offset: 2px;
 }
 
@@ -397,7 +406,7 @@ a, button, input, textarea, select {
 .parallax-shape-1 {
   width: 400px;
   height: 400px;
-  background: linear-gradient(135deg, #c4b5fd, #a78bfa);
+  background: linear-gradient(135deg, #fd6d3d, #FC5114);
   top: -200px;
   right: -100px;
   animation: parallaxFloat1 40s ease-in-out infinite;
@@ -406,7 +415,7 @@ a, button, input, textarea, select {
 .parallax-shape-2 {
   width: 300px;
   height: 300px;
-  background: linear-gradient(135deg, #93c5fd, #60a5fa);
+  background: linear-gradient(135deg, rgba(252, 81, 20, 0.4), rgba(0, 0, 0, 0.2));
   bottom: -150px;
   left: -100px;
   animation: parallaxFloat2 35s ease-in-out infinite;
@@ -415,7 +424,7 @@ a, button, input, textarea, select {
 .parallax-shape-3 {
   width: 200px;
   height: 200px;
-  background: linear-gradient(135deg, #fcd34d, #fbbf24);
+  background: linear-gradient(135deg, #FC5114, #d9450f);
   top: 50%;
   left: 50%;
   animation: parallaxFloat3 45s ease-in-out infinite;
@@ -583,11 +592,11 @@ a, button, input, textarea, select {
    ============================================ */
 
 ::selection {
-  background: rgba(139, 92, 246, 0.2);
+  background: rgba(252, 81, 20, 0.2);
   color: inherit;
 }
 
 ::-moz-selection {
-  background: rgba(139, 92, 246, 0.2);
+  background: rgba(252, 81, 20, 0.2);
   color: inherit;
 }

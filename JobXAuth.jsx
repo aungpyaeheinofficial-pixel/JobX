@@ -480,7 +480,7 @@ const JobXAuth = ({ onBack, onAuthComplete }) => {
       {/* Background gradient */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-violet-100 rounded-full blur-3xl opacity-20"
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand/20 rounded-full blur-3xl opacity-30"
         />
       </div>
 

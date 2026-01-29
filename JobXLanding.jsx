@@ -93,7 +93,7 @@ const JobXLanding = ({ onGetStarted }) => {
           transform: translateY(0);
         }
         .focus-visible:focus {
-          outline: 2px solid #000;
+          outline: 2px solid #FC5114;
           outline-offset: 4px;
         }
       `}</style>
@@ -101,7 +101,7 @@ const JobXLanding = ({ onGetStarted }) => {
       {/* Very subtle gradient overlay with parallax */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div
-          className="absolute top-0 left-1/2 w-[800px] h-[800px] bg-violet-100 rounded-full blur-3xl opacity-20"
+          className="absolute top-0 left-1/2 w-[800px] h-[800px] bg-brand/20 rounded-full blur-3xl opacity-30"
           style={{
             animation: 'subtleFloat 20s ease-in-out infinite',
             transform: `translate(-50%, ${scrollY * 0.3}px)`,
@@ -118,7 +118,7 @@ const JobXLanding = ({ onGetStarted }) => {
               <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center" aria-hidden="true">
                 <span className="text-white font-bold text-lg">J</span>
               </div>
-              <span className="text-xl font-semibold">JobX</span>
+              <span className="text-xl font-semibold text-black">JobX</span>
             </div>
             <div className="hidden md:flex gap-12 text-gray-600">
               <button onClick={() => scrollToSection('methodology')} className="hover:text-black transition-colors focus-visible:focus">
@@ -140,7 +140,7 @@ const JobXLanding = ({ onGetStarted }) => {
               </button>
               <button
                 onClick={onGetStarted}
-                className="px-6 py-2.5 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-300 focus-visible:focus"
+                className="px-6 py-2.5 bg-brand text-white rounded-full hover:bg-brand-dark transition-all duration-300 focus-visible:focus"
               >
                 Join Community
               </button>
@@ -158,7 +158,7 @@ const JobXLanding = ({ onGetStarted }) => {
             }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-full mb-12">
-              <div className="w-2 h-2 bg-green-500 rounded-full" aria-label="Active community" />
+              <div className="w-2 h-2 bg-brand rounded-full" aria-label="Active community" />
               <span className="text-sm text-gray-600 uppercase tracking-wide">
                 Myanmar's Builder Community
               </span>
@@ -180,14 +180,14 @@ const JobXLanding = ({ onGetStarted }) => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button
                 onClick={onGetStarted}
-                className="group px-8 py-4 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-300 flex items-center gap-2 focus-visible:focus"
+                className="group px-8 py-4 bg-brand text-white rounded-full hover:bg-brand-dark transition-all duration-300 flex items-center gap-2 focus-visible:focus"
               >
                 Join the Community
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </button>
               <button
                 onClick={() => scrollToSection('methodology')}
-                className="px-8 py-4 bg-white border border-gray-200 rounded-full hover:border-gray-300 transition-all duration-300 focus-visible:focus"
+                className="px-8 py-4 bg-white border-2 border-black rounded-full hover:bg-gray-50 transition-all duration-300 focus-visible:focus text-black"
               >
                 How It Works
               </button>
@@ -278,7 +278,7 @@ const JobXLanding = ({ onGetStarted }) => {
 
             <button
               onClick={onGetStarted}
-              className="px-10 py-5 bg-white text-black rounded-full text-lg font-medium hover:bg-gray-100 transition-all duration-300 focus-visible:focus"
+              className="px-10 py-5 bg-brand text-white rounded-full text-lg font-medium hover:bg-brand-dark transition-all duration-300 focus-visible:focus"
             >
               Join JobX Community
             </button>
@@ -295,16 +295,16 @@ const JobXLanding = ({ onGetStarted }) => {
               <span className="text-xl font-semibold">JobX</span>
             </div>
             <nav className="flex gap-12 text-gray-600" aria-label="Footer navigation">
-              <button onClick={() => scrollToSection('methodology')} className="hover:text-black transition-colors focus-visible:focus">
+              <button onClick={() => scrollToSection('methodology')} className="hover:text-brand transition-colors focus-visible:focus">
                 About
               </button>
-              <button onClick={() => scrollToSection('proof')} className="hover:text-black transition-colors focus-visible:focus">
+              <button onClick={() => scrollToSection('proof')} className="hover:text-brand transition-colors focus-visible:focus">
                 Community
               </button>
-              <button onClick={() => scrollToSection('methodology')} className="hover:text-black transition-colors focus-visible:focus">
+              <button onClick={() => scrollToSection('methodology')} className="hover:text-brand transition-colors focus-visible:focus">
                 Projects
               </button>
-              <button onClick={() => scrollToSection('cta')} className="hover:text-black transition-colors focus-visible:focus">
+              <button onClick={() => scrollToSection('cta')} className="hover:text-brand transition-colors focus-visible:focus">
                 Contact
               </button>
             </nav>
