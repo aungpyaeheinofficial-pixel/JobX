@@ -2,7 +2,8 @@
 export default {
   content: [
     "./index.html",
-    "./**/*.{js,ts,jsx,tsx}",
+    "./*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   safelist: [
     { pattern: /^(bg|text|border|ring|shadow|from|to|via|hover:bg|hover:text|hover:shadow|focus:ring)-brand(-dark|-light|-lg)?(\/\d+)?$/ },
