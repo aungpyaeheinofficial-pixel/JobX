@@ -322,7 +322,7 @@ const ProjectsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-black">
       {/* Enhanced Header */}
       <EnhancedHeader
         userData={userData}
@@ -340,14 +340,14 @@ const ProjectsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout
         {/* Page Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Projects</h1>
-            <p className="text-gray-500 text-lg">
+            <h1 className="text-4xl font-bold mb-2 text-gray-900 dark:text-white">Projects</h1>
+            <p className="text-gray-500 dark:text-gray-400 text-lg">
               Collaborate on real projects and build your portfolio
             </p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all font-medium"
+            className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-full hover:bg-brand-dark transition-all font-medium"
           >
             <Plus className="w-5 h-5" />
             Create Project

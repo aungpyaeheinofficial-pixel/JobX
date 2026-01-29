@@ -226,23 +226,23 @@ export default function MessagingDrawer({ open, onClose, currentUser }) {
       />
 
       {/* Sheet - Enhanced elevation and constrained width */}
-      <aside className="absolute right-0 top-0 h-full w-full sm:max-w-[420px] bg-white border-l border-gray-200 shadow-2xl animate-slideIn rounded-l-2xl overflow-hidden z-10">
+      <aside className="absolute right-0 top-0 h-full w-full sm:max-w-[420px] bg-white dark:bg-gray-950 border-l border-gray-200 dark:border-white/10 shadow-2xl animate-slideIn rounded-l-2xl overflow-hidden z-10">
         {/* Header */}
         <div className="px-6 pt-6 pb-4">
           <div className="flex items-center justify-between">
-            <div className="text-4xl font-bold tracking-tight">Chats</div>
+            <div className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">Chats</div>
             <div className="flex items-center gap-1">
-              <button type="button" className="p-2 rounded-xl hover:bg-gray-100 transition-colors micro-icon" aria-label="Menu">
-                <MoreHorizontal className="w-5 h-5 text-gray-600" />
+              <button type="button" className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors micro-icon" aria-label="Menu">
+                <MoreHorizontal className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               </button>
-              <button type="button" className="p-2 rounded-xl hover:bg-gray-100 transition-colors micro-icon" aria-label="Expand">
-                <Expand className="w-5 h-5 text-gray-600" />
+              <button type="button" className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors micro-icon" aria-label="Expand">
+                <Expand className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               </button>
-              <button type="button" className="p-2 rounded-xl hover:bg-gray-100 transition-colors micro-icon" aria-label="New chat">
-                <Pencil className="w-5 h-5 text-gray-600" />
+              <button type="button" className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors micro-icon" aria-label="New chat">
+                <Pencil className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               </button>
-              <button type="button" onClick={handleClose} className="p-2 rounded-xl hover:bg-gray-100 transition-colors micro-icon" aria-label="Close">
-                <X className="w-5 h-5 text-gray-600" />
+              <button type="button" onClick={handleClose} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors micro-icon" aria-label="Close">
+                <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               </button>
             </div>
           </div>
@@ -358,7 +358,7 @@ export default function MessagingDrawer({ open, onClose, currentUser }) {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-auto px-4 py-4 space-y-3 bg-white">
+              <div className="flex-1 overflow-auto px-4 py-4 space-y-3 bg-white dark:bg-black">
                 {loading && active.messages.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">Loading messages...</div>
                 ) : active.messages.length === 0 ? (
@@ -370,7 +370,7 @@ export default function MessagingDrawer({ open, onClose, currentUser }) {
                     <div key={m.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
                       <div
                         className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed ${
-                          mine ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'
+                          mine ? 'bg-brand text-white' : 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white'
                         }`}
                       >
                         <div className="whitespace-pre-wrap">{m.text}</div>
@@ -383,7 +383,7 @@ export default function MessagingDrawer({ open, onClose, currentUser }) {
               </div>
 
               <div
-                className="px-4 pt-3 pb-6 border-t border-gray-200 bg-white"
+                className="px-4 pt-3 pb-6 border-t border-gray-200 dark:border-white/10 bg-white dark:bg-gray-950"
                 style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}
               >
                 <div className="flex items-end gap-2">
@@ -399,13 +399,13 @@ export default function MessagingDrawer({ open, onClose, currentUser }) {
                     }}
                     rows={1}
                     placeholder="Aa"
-                    className="flex-1 px-4 py-3 bg-gray-100/70 border border-gray-200 rounded-full outline-none focus:border-black transition-colors resize-none"
+                    className="flex-1 px-4 py-3 bg-gray-100/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-full outline-none focus:border-brand transition-colors resize-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                   />
                   <button
                     type="button"
                     onClick={sendMessage}
                     disabled={!draft.trim()}
-                    className="p-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="p-3 rounded-full bg-brand text-white hover:bg-brand-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     aria-label="Send"
                   >
                     <Send className="w-5 h-5" />

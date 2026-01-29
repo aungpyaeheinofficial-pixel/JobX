@@ -4,6 +4,9 @@ import App from './App.jsx'
 import './index.css'
 import { testConnection, testAuth } from './src/utils/testConnection.js' // Load connection test utilities
 
+// Default to dark theme (brand: #FC5114)
+document.documentElement.classList.add('dark');
+
 // Make test functions available globally for debugging (always available)
 window.testConnection = testConnection;
 window.testAuth = testAuth;

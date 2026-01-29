@@ -771,7 +771,7 @@ const JobsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout, ap
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-black flex flex-col">
       <EnhancedHeader
         userData={userData}
         userRole={userRole}
@@ -785,25 +785,25 @@ const JobsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout, ap
       
 
       {/* Search Section */}
-      <section className="bg-white border-b border-gray-100 sticky top-[73px] z-10">
+      <section className="bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-white/10 sticky top-[73px] z-10">
         <div className="max-w-[1920px] mx-auto px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr_auto] gap-4 items-end">
             <div>
-              <div className="text-sm font-semibold text-gray-900 mb-2">What</div>
+              <div className="text-sm font-semibold text-gray-900 dark:text-white mb-2">What</div>
               <input
                 value={whatQuery}
                 onChange={(e) => setWhatQuery(e.target.value)}
                 placeholder="Enter keywords"
-                className="w-full px-5 py-4 text-lg bg-white border border-gray-200 rounded-2xl outline-none focus:border-black transition-colors"
+                className="w-full px-5 py-4 text-lg bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-2xl outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-brand transition-colors"
               />
             </div>
             <div>
-              <div className="text-sm font-semibold text-gray-900 mb-2">Classification</div>
+              <div className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Classification</div>
               <div className="relative">
                 <select
                   value={classificationFilter}
                   onChange={(e) => setClassificationFilter(e.target.value)}
-                  className="w-full appearance-none px-5 py-4 text-lg bg-white border border-gray-200 rounded-2xl outline-none focus:border-black transition-colors pr-12"
+                  className="w-full appearance-none px-5 py-4 text-lg bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-2xl outline-none text-gray-900 dark:text-white focus:border-brand transition-colors pr-12"
                 >
                   {classificationOptions.map((c) => (
                     <option key={c} value={c}>
@@ -811,21 +811,21 @@ const JobsPage = ({ userData, userRole, onNavigate, onOpenMessages, onLogout, ap
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400 pointer-events-none" />
               </div>
             </div>
             <div>
-              <div className="text-sm font-semibold text-gray-900 mb-2">Where</div>
+              <div className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Where</div>
               <input
                 value={whereQuery}
                 onChange={(e) => setWhereQuery(e.target.value)}
                 placeholder="Enter city or region"
-                className="w-full px-5 py-4 text-lg bg-white border border-gray-200 rounded-2xl outline-none focus:border-black transition-colors"
+                className="w-full px-5 py-4 text-lg bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-2xl outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-brand transition-colors"
               />
             </div>
             <button
               type="button"
-              className="px-10 py-4 bg-black text-white rounded-2xl hover:bg-gray-800 transition-all text-lg font-semibold btn-beam"
+              className="px-10 py-4 bg-brand text-white rounded-2xl hover:bg-brand-dark transition-all text-lg font-semibold btn-beam"
             >
               Seek
             </button>

@@ -16,7 +16,7 @@ export function SharedLiquidHeader({ currentView, userData, onNavigate, onOpenMe
   ];
 
   return (
-    <header className="bg-white/80 backdrop-blur-xl border-b border-black/10 sticky top-0 z-20">
+    <header className="bg-white/80 dark:bg-black/50 backdrop-blur-xl border-b border-black/10 dark:border-white/10 sticky top-0 z-20">
       <div className="max-w-[1920px] mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -24,11 +24,11 @@ export function SharedLiquidHeader({ currentView, userData, onNavigate, onOpenMe
             <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center">
               <span className="text-white font-bold text-lg">J</span>
             </div>
-            <span className="text-xl font-semibold">JobX</span>
+            <span className="text-xl font-semibold text-black dark:text-white">JobX</span>
           </div>
 
           {/* Apple Liquid Glass Navigation */}
-          <nav className="hidden md:flex items-center gap-0.5 bg-gray-50/80 backdrop-blur-lg p-1 rounded-full border border-gray-200/60 shadow-sm">
+          <nav className="hidden md:flex items-center gap-0.5 bg-gray-50/80 dark:bg-black/40 backdrop-blur-lg p-1 rounded-full border border-gray-200/60 dark:border-white/10 shadow-sm">
             {navItems.map((item) => (
               <AppleLiquidNavItem
                 key={item.id}

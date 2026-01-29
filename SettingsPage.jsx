@@ -48,7 +48,7 @@ const SettingsPageContent = ({ userData, userRole, onNavigate, onLogout, onOpenM
 
     // System Preferences
     language: 'en',
-    theme: 'light',
+    theme: 'dark',
     timezone: 'Asia/Yangon',
     dateFormat: 'DD/MM/YYYY',
     timeFormat: '24h',
@@ -172,7 +172,7 @@ const SettingsPageContent = ({ userData, userRole, onNavigate, onLogout, onOpenM
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-black">
       <EnhancedHeader
         userData={userData}
         userRole={userRole}
@@ -185,14 +185,14 @@ const SettingsPageContent = ({ userData, userRole, onNavigate, onLogout, onOpenM
 
       <div className="max-w-7xl mx-auto px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Settings</h1>
-          <p className="text-gray-600 text-lg">Manage your account and preferences</p>
+          <h1 className="text-4xl font-bold mb-2 text-gray-900 dark:text-white">Settings</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-lg">Manage your account and preferences</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar Navigation */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl border border-gray-200 p-2 sticky top-24">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 p-2 sticky top-24">
               {sections.map((section) => {
                 const Icon = section.icon;
                 const isActive = activeSection === section.id;

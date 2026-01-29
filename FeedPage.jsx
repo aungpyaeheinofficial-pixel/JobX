@@ -169,7 +169,7 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
     <motion.article
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl border border-gray-200 overflow-hidden micro-card"
+      className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden micro-card"
     >
       {/* Author Header */}
       <div className="p-5 pb-0">
@@ -190,7 +190,7 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <span>{post.author.title}</span>
                 <span>•</span>
                 <span className="flex items-center gap-1">
@@ -217,7 +217,7 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
 
       {/* Content */}
       <div className="px-5 py-4">
-        <p className="text-gray-800 whitespace-pre-line leading-relaxed">{post.content}</p>
+        <p className="text-gray-800 dark:text-gray-100 whitespace-pre-line leading-relaxed">{post.content}</p>
       </div>
 
       {/* Image */}
@@ -232,7 +232,7 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
       )}
 
       {/* Engagement Stats */}
-      <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
+      <div className="px-5 py-3 border-t border-gray-100 dark:border-white/10 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1">
             <ThumbsUp className="w-4 h-4" />
@@ -244,7 +244,7 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
       </div>
 
       {/* Action Buttons */}
-      <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
+      <div className="px-5 py-3 border-t border-gray-100 dark:border-white/10 flex items-center justify-between">
         <button
           onClick={() => onLike(post.id)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
@@ -289,9 +289,9 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="border-t border-gray-100 overflow-hidden"
+            className="border-t border-gray-100 dark:border-white/10 overflow-hidden"
           >
-            <div className="p-4 bg-gray-50">
+            <div className="p-4 bg-gray-50 dark:bg-white/5">
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white text-xs font-semibold">
                   U
@@ -302,9 +302,9 @@ const PostCard = ({ post, onLike, onComment, onShare, onBookmark }) => {
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     placeholder="Write a comment..."
-                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300"
+                    className="w-full px-4 py-2.5 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/10 rounded-full text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
                   />
-                  <button className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600">
+                  <button className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                     <Send className="w-4 h-4" />
                   </button>
                 </div>
@@ -358,8 +358,8 @@ const PostComposer = ({ userData, onPost }) => {
 
   return (
     <div
-      className={`bg-white rounded-2xl border-2 transition-colors ${
-        isDragging ? 'border-brand bg-brand/10' : 'border-gray-200'
+      className={`bg-white dark:bg-gray-900 rounded-2xl border-2 transition-colors ${
+        isDragging ? 'border-brand bg-brand/10' : 'border-gray-200 dark:border-white/10'
       }`}
       onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
       onDragLeave={() => setIsDragging(false)}
@@ -372,7 +372,7 @@ const PostComposer = ({ userData, onPost }) => {
             {userData?.name?.charAt(0) || 'U'}
           </div>
           <div className="flex-1">
-            <div className="font-semibold text-gray-900">{userData?.name || 'User'}</div>
+            <div className="font-semibold text-gray-900 dark:text-white">{userData?.name || 'User'}</div>
             <div className="relative">
               <button
                 onClick={() => setShowTypeDropdown(!showTypeDropdown)}
@@ -389,7 +389,7 @@ const PostComposer = ({ userData, onPost }) => {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-10 py-1 min-w-[140px]"
+                    className="absolute top-full left-0 mt-1 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/10 rounded-xl shadow-xl z-10 py-1 min-w-[140px]"
                   >
                     {Object.entries(postTypeBadges).map(([type, badge]) => {
                       const Icon = badge.icon;
@@ -397,8 +397,8 @@ const PostComposer = ({ userData, onPost }) => {
                         <button
                           key={type}
                           onClick={() => { setPostType(type); setShowTypeDropdown(false); }}
-                          className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 ${
-                            type === postType ? 'bg-gray-50' : ''
+                          className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-white/5 ${
+                            type === postType ? 'bg-gray-50 dark:bg-white/5' : ''
                           }`}
                         >
                           <Icon className="w-4 h-4" />
@@ -490,7 +490,7 @@ const TrendingTopics = () => {
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-5">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 p-5">
       <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
         <TrendingUp className="w-5 h-5 text-gray-400" />
         Trending in Myanmar
@@ -499,11 +499,11 @@ const TrendingTopics = () => {
         {topics.map((topic, idx) => (
           <button
             key={topic.tag}
-            className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors text-left"
+            className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors text-left"
           >
             <div>
-              <div className="font-medium text-gray-900">{topic.tag}</div>
-              <div className="text-sm text-gray-500">{topic.posts} posts</div>
+              <div className="font-medium text-gray-900 dark:text-white">{topic.tag}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{topic.posts} posts</div>
             </div>
             <span className="text-xs text-gray-400">#{idx + 1}</span>
           </button>
@@ -522,7 +522,7 @@ const SuggestedConnections = ({ onNavigate }) => {
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-5">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-900 flex items-center gap-2">
           <Users className="w-5 h-5 text-gray-400" />
@@ -530,7 +530,7 @@ const SuggestedConnections = ({ onNavigate }) => {
         </h3>
         <button
           onClick={() => onNavigate('network')}
-          className="text-sm text-gray-500 hover:text-gray-700"
+          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
         >
           See all
         </button>
@@ -539,19 +539,19 @@ const SuggestedConnections = ({ onNavigate }) => {
         {suggestions.map((person) => (
           <div
             key={person.name}
-            className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors"
+            className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center text-white text-sm font-medium">
                 {person.initials}
               </div>
               <div>
-                <div className="font-medium text-gray-900 text-sm">{person.name}</div>
-                <div className="text-xs text-gray-500">{person.title}</div>
+                <div className="font-medium text-gray-900 dark:text-white text-sm">{person.name}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{person.title}</div>
                 <div className="text-xs text-gray-400">{person.mutual} mutual</div>
               </div>
             </div>
-            <button className="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors">
+            <button className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-white/10 rounded-full hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
               Follow
             </button>
           </div>
@@ -573,7 +573,7 @@ const ExploreCommunities = ({ selectedCommunity, onSelectCommunity }) => {
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-5">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 p-5">
       <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
         <Users className="w-5 h-5 text-gray-400" />
         Explore Communities
@@ -586,15 +586,15 @@ const ExploreCommunities = ({ selectedCommunity, onSelectCommunity }) => {
             className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left ${
               selectedCommunity === community.id
                 ? 'bg-black text-white'
-                : 'hover:bg-gray-50 text-gray-700'
+                : 'hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-200'
             }`}
           >
             <span className="text-lg">{community.icon}</span>
             <div className="flex-1 min-w-0">
-              <div className={`font-medium text-sm ${selectedCommunity === community.id ? 'text-white' : 'text-gray-900'}`}>
+              <div className={`font-medium text-sm ${selectedCommunity === community.id ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
                 {community.name}
               </div>
-              <div className={`text-xs ${selectedCommunity === community.id ? 'text-gray-300' : 'text-gray-500'}`}>
+              <div className={`text-xs ${selectedCommunity === community.id ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'}`}>
                 {community.members} members
               </div>
             </div>
@@ -611,7 +611,7 @@ const ExploreCommunities = ({ selectedCommunity, onSelectCommunity }) => {
 // Profile Card Component
 const ProfileCard = ({ userData, onNavigate }) => {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden">
       {/* Cover */}
       <div className="h-16 bg-gradient-to-r from-black via-gray-800 to-black" />
       
@@ -623,25 +623,25 @@ const ProfileCard = ({ userData, onNavigate }) => {
           </div>
         </div>
         <div className="mt-3">
-          <h3 className="font-semibold text-gray-900">{userData?.name || 'User'}</h3>
-          <p className="text-sm text-gray-500">{userData?.title || 'Builder'}</p>
+          <h3 className="font-semibold text-gray-900 dark:text-white">{userData?.name || 'User'}</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{userData?.title || 'Builder'}</p>
         </div>
         
         {/* Stats */}
-        <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-4 text-center">
+        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/10 grid grid-cols-2 gap-4 text-center">
           <div>
-            <div className="text-lg font-semibold text-gray-900">127</div>
-            <div className="text-xs text-gray-500">Connections</div>
+            <div className="text-lg font-semibold text-gray-900 dark:text-white">127</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Connections</div>
           </div>
           <div>
-            <div className="text-lg font-semibold text-gray-900">45</div>
-            <div className="text-xs text-gray-500">Profile views</div>
+            <div className="text-lg font-semibold text-gray-900 dark:text-white">45</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Profile views</div>
           </div>
         </div>
 
         <button
           onClick={() => onNavigate('profile')}
-          className="w-full mt-4 py-2.5 text-sm font-medium text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+          className="w-full mt-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
         >
           View Profile
         </button>
@@ -844,7 +844,7 @@ const FeedPage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages }) 
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-black">
       <EnhancedHeader
         userData={userData}
         userRole={userRole}

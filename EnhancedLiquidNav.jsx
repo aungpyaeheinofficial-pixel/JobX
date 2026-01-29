@@ -49,7 +49,7 @@ export const EnhancedLiquidNav = ({ activeTab = 'dashboard', onNavigate, userDat
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className="hidden md:flex items-center gap-1 bg-white/70 backdrop-blur-2xl p-1.5 rounded-[20px] border border-gray-200/60 shadow-lg shadow-black/5">
+      <nav className="hidden md:flex items-center gap-1 bg-white/70 dark:bg-black/40 backdrop-blur-2xl p-1.5 rounded-[20px] border border-gray-200/60 dark:border-white/10 shadow-lg shadow-black/5">
         <div className="relative flex items-center gap-1">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -87,7 +87,7 @@ export const EnhancedLiquidNav = ({ activeTab = 'dashboard', onNavigate, userDat
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     className={`absolute inset-0 backdrop-blur-sm rounded-[14px] ${
-                      item.isAction ? 'bg-brand/10' : 'bg-gray-100/80'
+                      item.isAction ? 'bg-brand/10' : 'bg-gray-100/80 dark:bg-white/5'
                     }`}
                     transition={{ duration: 0.15 }}
                   />
@@ -97,13 +97,13 @@ export const EnhancedLiquidNav = ({ activeTab = 'dashboard', onNavigate, userDat
                 <div className="relative flex items-center gap-2.5">
                   <Icon
                     className={`w-[18px] h-[18px] transition-colors duration-200 ${
-                      isActive ? 'text-white' : item.isAction ? 'text-brand' : 'text-gray-600'
+                      isActive ? 'text-white' : item.isAction ? 'text-brand' : 'text-gray-600 dark:text-gray-300'
                     }`}
                     strokeWidth={2.5}
                   />
                   <span
                     className={`text-[15px] font-semibold transition-colors duration-200 ${
-                      isActive ? 'text-white' : item.isAction ? 'text-brand' : 'text-gray-700'
+                      isActive ? 'text-white' : item.isAction ? 'text-brand' : 'text-gray-700 dark:text-gray-200'
                     }`}
                   >
                     {item.label}
@@ -118,9 +118,9 @@ export const EnhancedLiquidNav = ({ activeTab = 'dashboard', onNavigate, userDat
       {/* Mobile Menu Button */}
       <button
         onClick={() => setShowMobileMenu(true)}
-        className="md:hidden flex items-center justify-center w-10 h-10 bg-white/70 backdrop-blur-xl rounded-full border border-gray-200/60 shadow-lg"
+        className="md:hidden flex items-center justify-center w-10 h-10 bg-white/70 dark:bg-black/40 backdrop-blur-xl rounded-full border border-gray-200/60 dark:border-white/10 shadow-lg"
       >
-        <Menu className="w-5 h-5 text-gray-700" strokeWidth={2} />
+        <Menu className="w-5 h-5 text-gray-700 dark:text-gray-200" strokeWidth={2} />
       </button>
 
       {/* Mobile Navigation Drawer */}
@@ -611,7 +611,7 @@ export const EnhancedHeader = ({
   showPostButton = true,
 }) => {
   return (
-    <header className="bg-white/80 backdrop-blur-2xl border-b border-gray-200/60 sticky top-0 z-30 shadow-sm">
+    <header className="bg-white/80 dark:bg-black/50 backdrop-blur-2xl border-b border-gray-200/60 dark:border-white/10 sticky top-0 z-30 shadow-sm">
       <div className="max-w-[1920px] mx-auto px-6 py-4">
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
@@ -624,7 +624,7 @@ export const EnhancedHeader = ({
             >
               <span className="text-white font-bold text-lg">J</span>
             </motion.div>
-            <span className="text-xl font-bold text-black">
+            <span className="text-xl font-bold text-black dark:text-white">
               JobX
             </span>
           </div>
@@ -675,7 +675,7 @@ export const HiringModeHeader = ({
   onSettings,
 }) => {
   return (
-    <header className="bg-white/90 backdrop-blur-2xl border-b border-black/10 sticky top-0 z-30 shadow-sm">
+    <header className="bg-white/90 dark:bg-black/60 backdrop-blur-2xl border-b border-black/10 dark:border-white/10 sticky top-0 z-30 shadow-sm">
       <div className="max-w-[1920px] mx-auto px-6 py-4">
         <div className="flex items-center justify-between gap-6">
           {/* Logo with Hiring Badge */}
@@ -689,7 +689,7 @@ export const HiringModeHeader = ({
               <span className="text-white font-bold text-lg">J</span>
             </motion.div>
             <div>
-              <span className="text-xl font-bold text-black">
+              <span className="text-xl font-bold text-black dark:text-white">
                 JobX
               </span>
               <div className="flex items-center gap-1.5">

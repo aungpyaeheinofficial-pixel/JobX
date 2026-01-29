@@ -216,7 +216,7 @@ const NotificationItem = ({ notification, onRead, onDelete, onNavigate }) => {
 
   return (
     <div
-      className={`relative group flex gap-4 p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
+      className={`relative group flex gap-4 p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer ${
         !notification.read ? 'bg-blue-50/50' : ''
       }`}
       onClick={() => {
@@ -228,7 +228,7 @@ const NotificationItem = ({ notification, onRead, onDelete, onNavigate }) => {
     >
       {/* Unread indicator */}
       {!notification.read && (
-        <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full" />
+        <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 bg-brand rounded-full" />
       )}
 
       {/* Icon */}
@@ -239,16 +239,16 @@ const NotificationItem = ({ notification, onRead, onDelete, onNavigate }) => {
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <p className={`text-sm leading-snug ${!notification.read ? 'font-semibold' : 'font-medium'} text-gray-900`}>
+          <p className={`text-sm leading-snug ${!notification.read ? 'font-semibold' : 'font-medium'} text-gray-900 dark:text-white`}>
             {notification.message}
           </p>
         </div>
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-xs text-gray-500">{notification.time}</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">{notification.time}</span>
           {notification.sender && (
             <>
               <span className="text-gray-300">•</span>
-              <span className="text-xs text-gray-500">{notification.sender}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">{notification.sender}</span>
             </>
           )}
         </div>
@@ -343,9 +343,9 @@ export const NotificationsDropdown = ({ onNavigate }) => {
       {/* Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative w-10 h-10 flex items-center justify-center bg-white/70 backdrop-blur-xl rounded-full border border-gray-200/60 shadow-lg hover:bg-white/90 transition-all"
+        className="relative w-10 h-10 flex items-center justify-center bg-white/70 dark:bg-black/40 backdrop-blur-xl rounded-full border border-gray-200/60 dark:border-white/10 shadow-lg hover:bg-white/90 dark:hover:bg-white/5 transition-all"
       >
-        <Bell className="w-5 h-5 text-gray-700" strokeWidth={2} />
+        <Bell className="w-5 h-5 text-gray-700 dark:text-gray-200" strokeWidth={2} />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -355,36 +355,36 @@ export const NotificationsDropdown = ({ onNavigate }) => {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-3 w-[420px] max-h-[calc(100vh-120px)] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50">
+        <div className="absolute right-0 top-full mt-3 w-[420px] max-h-[calc(100vh-120px)] bg-white dark:bg-gray-950 rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden z-50">
           {/* Header */}
-          <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 z-10">
+          <div className="sticky top-0 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-white/10 px-5 py-4 z-10">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xl font-bold">Notifications</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Notifications</h2>
               <div className="flex items-center gap-2">
                 {unreadCount > 0 && (
                   <button
                     onClick={markAllAsRead}
-                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    className="text-sm text-brand hover:text-brand-dark font-medium"
                   >
                     Mark all read
                   </button>
                 )}
                 <button
                   onClick={() => handleNavigate('settings')}
-                  className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors"
                   title="Notification settings"
                 >
-                  <Settings className="w-4 h-4 text-gray-500" />
+                  <Settings className="w-4 h-4 text-gray-500 dark:text-gray-300" />
                 </button>
               </div>
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+            <div className="flex gap-1 bg-gray-100 dark:bg-white/5 rounded-lg p-1">
               <button
                 onClick={() => setFilter('all')}
                 className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                  filter === 'all' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-900'
+                  filter === 'all' ? 'bg-white dark:bg-black shadow text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
                 All
@@ -392,12 +392,12 @@ export const NotificationsDropdown = ({ onNavigate }) => {
               <button
                 onClick={() => setFilter('unread')}
                 className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-                  filter === 'unread' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-900'
+                  filter === 'unread' ? 'bg-white dark:bg-black shadow text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
                 Unread
                 {unreadCount > 0 && (
-                  <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                  <span className="px-1.5 py-0.5 bg-brand/10 text-brand text-xs rounded-full">
                     {unreadCount}
                   </span>
                 )}

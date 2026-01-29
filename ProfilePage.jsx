@@ -531,7 +531,7 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-black">
       <EnhancedHeader
         userData={userData}
         userRole={userRole}
@@ -544,7 +544,7 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
       />
 
       {/* Profile Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-white/10">
         <div className="max-w-5xl mx-auto px-8">
           {/* Cover & Avatar */}
           <div className="relative pt-8 pb-6">
@@ -562,7 +562,7 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
                     handleAvatarFile(f);
                   }}
                 />
-                <div className="w-36 h-36 bg-gradient-to-br from-violet-500 to-purple-600 rounded-3xl shadow-xl overflow-hidden flex items-center justify-center ring-4 ring-white">
+                <div className="w-36 h-36 bg-gradient-to-br from-brand to-brand-dark rounded-3xl shadow-xl overflow-hidden flex items-center justify-center ring-4 ring-white dark:ring-black">
                   {(isEditing ? editForm.avatarUrl : profile.avatarUrl) ? (
                     <img
                       src={(isEditing ? editForm.avatarUrl : profile.avatarUrl)}
@@ -590,9 +590,9 @@ const ProfilePage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
               <div className="flex-1 pb-2">
                 {!isEditing ? (
                   <>
-                    <h1 className="text-4xl font-bold mb-1">{profile.name}</h1>
-                    <p className="text-xl text-gray-600 mb-3">{profile.title}</p>
-                    <div className="flex flex-wrap items-center gap-4 text-gray-500">
+                    <h1 className="text-4xl font-bold mb-1 text-gray-900 dark:text-white">{profile.name}</h1>
+                    <p className="text-xl text-gray-600 dark:text-gray-400 mb-3">{profile.title}</p>
+                    <div className="flex flex-wrap items-center gap-4 text-gray-500 dark:text-gray-400">
                       <span className="flex items-center gap-1.5">
                         <MapPin className="w-4 h-4" />
                         {profile.location}

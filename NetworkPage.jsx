@@ -406,7 +406,7 @@ const NetworkPage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
   const pendingCount = people.filter(p => p.isPending).length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-black">
       <EnhancedHeader
         userData={userData}
         userRole={userRole}
@@ -420,8 +420,8 @@ const NetworkPage = ({ userData, userRole, onNavigate, onLogout, onOpenMessages 
       <main className="max-w-[1400px] mx-auto px-6 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Network</h1>
-          <p className="text-gray-500 mt-1">Grow your professional network in Myanmar</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Network</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Grow your professional network in Myanmar</p>
         </div>
 
         {/* Stats - Apple-style hierarchy */}
